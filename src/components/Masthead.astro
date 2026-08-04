@@ -12,12 +12,14 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 const t = {
   es: {
     tagline: 'Lo que ha cambiado hoy en IA, y por qué te afecta',
+    nav: 'Principal',
     home: 'Portada',
     about: 'Qué es esto',
     switch: 'Read in English',
   },
   en: {
     tagline: "What changed in AI today, and why it matters to you",
+    nav: 'Main',
     home: 'Front page',
     about: 'What is this',
     switch: 'Leer en español',
@@ -29,12 +31,12 @@ const t = {
   <div class="wrap bar">
     <a class="brand" href={`${base}/${lang}/`}>
       <Press />
-      <span class="wordmark hl">PIIA</span>
+      <span class="wordmark hl" translate="no">PIIA</span>
     </a>
 
     <p class="tagline">{t.tagline}</p>
 
-    <nav aria-label={t.home}>
+    <nav aria-label={t.nav}>
       <a href={`${base}/${lang}/`}>{t.home}</a>
       <a href={`${base}/${lang}/about/`}>{t.about}</a>
       <a class="lang" href={`${base}${altHref}`} lang={lang === 'es' ? 'en' : 'es'}>{t.switch}</a>
@@ -99,10 +101,16 @@ const t = {
   nav a {
     text-decoration: none;
     padding-bottom: 2px;
+    /* Área táctil de ≥44px sin mover el layout: el padding crece hacia fuera
+       y el margen negativo lo compensa. */
+    padding-block: 0.65em;
+    margin-block: -0.65em;
   }
 
+  /* Hover de navegación: siempre el marcador amarillo del zine. El teal queda
+     para el halo de foco y el rosa para la procedencia. */
   nav a:hover {
-    background-image: linear-gradient(transparent 72%, var(--hl-teal) 72%);
+    background-image: linear-gradient(transparent 72%, var(--hl-yellow-mark) 72%);
   }
 
   .lang {
@@ -116,10 +124,28 @@ const t = {
     height: 9px;
   }
 
+  /* En móvil la cabecera es una pieza rotulada: marca con su lema debajo, y el
+     nav como línea de servicio al final. La tagline nunca queda huérfana entre
+     el nav y el contenido. */
   @media (max-width: 40rem) {
+    .bar {
+      row-gap: var(--s1);
+    }
+
     .tagline {
+      order: 2;
+      flex-basis: 100%;
+      font-size: 0.88rem;
+    }
+
+    nav {
       order: 3;
       flex-basis: 100%;
     }
+  }
+
+  /* Las gotas de tinta del rodillo caen al tocar la marca. */
+  .brand:hover :global(.drop) {
+    transform: translateY(3px);
   }
 </style>

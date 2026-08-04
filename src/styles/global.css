@@ -32,6 +32,10 @@
 
   --measure: 68ch;
   --edge: 2.5px;
+
+  /* El trazo del subrayador amarillo, compartido para poder redibujarlo en
+     otros componentes sin duplicar el SVG. */
+  --stroke-yellow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='24' viewBox='0 0 200 24' preserveAspectRatio='none'%3E%3Cpath d='M2 16.5c26-2.4 52-3.6 79-3.1 30 .6 61 2 117 .5v7.3c-52 1.7-84 .3-116-.4-28-.6-54 .6-80 2.6z' fill='%23FFD814'/%3E%3C/svg%3E");
 }
 
 *,
@@ -42,10 +46,15 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* Sitio de un solo esquema: papel claro. Declararlo arregla scrollbars y
+     controles nativos en sistemas con modo oscuro. */
+  color-scheme: light;
 }
 
 body {
   margin: 0;
+  /* Las reglas SVG van a sangre bajo el notch; el texto, no. */
+  padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
   background-color: var(--paper);
   /* Fibra de papel. Trazos cortos e irregulares en tres direcciones, no una
      trama de puntos: la pulpa del papel barato tiene hebra, no retícula. */
@@ -72,6 +81,18 @@ a {
   color: inherit;
 }
 
+a,
+button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(255, 216, 20, 0.28);
+}
+
+/* Los headings de los artículos llevan id; sin este margen, el anchor queda
+   pegado al borde superior al saltar. */
+:is(h1, h2, h3, h4)[id] {
+  scroll-margin-top: var(--s4);
+}
+
 img,
 svg {
   max-width: 100%;
@@ -90,7 +111,7 @@ svg {
    borde superior desigual, como el fluorescente pasado a mano sobre la
    fotocopia: nunca cubre, siempre deja leer. */
 .hl {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='24' viewBox='0 0 200 24' preserveAspectRatio='none'%3E%3Cpath d='M2 16.5c26-2.4 52-3.6 79-3.1 30 .6 61 2 117 .5v7.3c-52 1.7-84 .3-116-.4-28-.6-54 .6-80 2.6z' fill='%23FFD814'/%3E%3C/svg%3E");
+  background-image: var(--stroke-yellow);
   background-repeat: no-repeat;
   background-size: 100% 0.62em;
   background-position: 0 88%;
@@ -135,6 +156,17 @@ svg {
   top: var(--s3);
 }
 
+/* Transición entre páginas (MPA view transitions). El titular del despacho
+   viaja de la portada al artículo: la continuidad explica a dónde has ido. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 240ms;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -142,5 +174,11 @@ svg {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }

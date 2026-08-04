@@ -3,6 +3,7 @@ interface Props {
   lang: 'es' | 'en';
 }
 const { lang } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const t = {
   es: {
@@ -34,7 +35,10 @@ const t = {
   <div class="wrap inner">
     <p class="what">{t.what}</p>
     <p class="body">{t.body}</p>
-    <a class="repo" href="https://github.com/dsancalm/piia">{t.source}</a>
+    <p class="links">
+      <a class="repo" href="https://github.com/dsancalm/piia">{t.source}</a>
+      <a class="repo" href={`${base}/${lang}/rss.xml`} translate="no">RSS</a>
+    </p>
   </div>
 </footer>
 
@@ -67,12 +71,20 @@ const t = {
     font-size: 0.95rem;
   }
 
+  .links {
+    display: flex;
+    gap: var(--s3);
+    margin: 0;
+  }
+
   .repo {
     font-weight: 600;
     font-size: 0.95rem;
   }
 
+  /* Hover de enlace de navegación: siempre el marcador amarillo. El rosa se
+     reserva para procedencia y el teal para el halo de foco. */
   .repo:hover {
-    background-image: linear-gradient(transparent 72%, var(--hl-pink) 72%);
+    background-image: linear-gradient(transparent 72%, var(--hl-yellow-mark) 72%);
   }
 </style>

@@ -29,13 +29,28 @@ const { size = 34 } = Astro.props;
   <path d="M20 9 V4" />
   <path d="M15.5 4 H24.5" />
   <!-- Tinta saliendo: tres trazos que caen -->
-  <path d="M12 30 V34" stroke="#ff6bae" />
-  <path d="M20 30 V36" stroke="#00c7b7" />
-  <path d="M28 30 V33" stroke="#ffe34d" />
+  <path class="drop" d="M12 30 V34" stroke="#ff6bae" />
+  <path class="drop d2" d="M20 30 V36" stroke="#00c7b7" />
+  <path class="drop d3" d="M28 30 V33" stroke="#ffe34d" />
 </svg>
 
 <style>
   .press {
     flex: none;
+  }
+
+  /* Quien envuelva el rodillo en un enlace puede empujar las gotas en hover;
+     aquí solo viven la física y el escalonado. */
+  .drop {
+    transform-box: fill-box;
+    transition: transform 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .d2 {
+    transition-delay: 50ms;
+  }
+
+  .d3 {
+    transition-delay: 100ms;
   }
 </style>

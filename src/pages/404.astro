@@ -1,0 +1,109 @@
+---
+import Base from '../layouts/Base.astro';
+
+// La 404 es única para todo el sitio: se sirve igual en /es/ y en /en/, así que
+// va en español primero y con el equivalente inglés debajo.
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<Base
+  lang="es"
+  title="No está — PIIA"
+  description="La página no existe o el despacho se retiró. Cada retirada queda en el historial del repositorio."
+  altHref="/es/"
+>
+  <article class="wrap piece">
+    <span class="stamp">Retirado</span>
+
+    <h1>Este despacho no está</h1>
+    <p class="alt" lang="en">This dispatch isn't here</p>
+
+    <div class="prose">
+      <p>
+        Puede que se haya retirado por un error, o que la dirección nunca existiera. Cuando un
+        despacho se retira, queda constancia en el historial del repositorio.
+      </p>
+      <p class="en" lang="en">
+        It may have been pulled because of a mistake, or the address may never have existed. When a
+        dispatch is pulled, the record stays in the repository history.
+      </p>
+    </div>
+
+    <ul class="links">
+      <li><a href={`${base}/es/`}>Volver a la portada</a></li>
+      <li><a href={`${base}/en/`} lang="en">Back to the front page</a></li>
+      <li><a href="https://github.com/dsancalm/piia/commits/main">Historial del repositorio</a></li>
+    </ul>
+  </article>
+</Base>
+
+<style>
+  .piece {
+    padding-top: var(--s4);
+  }
+
+  /* Mismo sello del zine: el marco es un trazo dibujado detrás del texto,
+     pintado como imagen de fondo estirada, no un borde CSS. */
+  .stamp {
+    position: relative;
+    display: inline-block;
+    font-family: var(--marker);
+    font-size: 0.85rem;
+    line-height: 1;
+    padding: 0.4em 0.7em 0.26em;
+    white-space: nowrap;
+    transform: rotate(-1.8deg);
+    margin-bottom: var(--s3);
+  }
+
+  .stamp::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: var(--hl-pink);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='56' viewBox='0 0 160 56' preserveAspectRatio='none'%3E%3Cpath d='M4.5 9.2C30 5.4 72 4.6 121 5.6c22 .5 32 1.6 34.2 3.8 2.2 2.3 2.4 14.4 1.4 36.8-.4 6.4-1.4 8.8-3.6 9.6-4.2 1.4-46 2-96 1.4-32-.4-51-1.2-53.2-2.6C1.6 53.2 1 42 1.6 24.4 1.9 14 2.6 10.4 4.5 9.2z' fill='none' stroke='%23111' stroke-width='2.6' stroke-linejoin='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    z-index: -1;
+  }
+
+  h1 {
+    font-size: clamp(2.4rem, 7vw, 4rem);
+    margin-bottom: var(--s1);
+  }
+
+  .alt {
+    font-family: var(--marker);
+    font-size: clamp(1.3rem, 3.4vw, 1.9rem);
+    line-height: 1.1;
+    color: var(--ink-soft);
+    margin: 0 0 var(--s4);
+  }
+
+  .prose {
+    max-width: var(--measure);
+  }
+
+  .prose p {
+    margin-block: 0 var(--s3);
+  }
+
+  .prose .en {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+  }
+
+  .links {
+    list-style: none;
+    margin: var(--s4) 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s1) var(--s3);
+    font-weight: 600;
+  }
+
+  .links a:hover {
+    background-image: linear-gradient(transparent 72%, var(--hl-pink) 72%);
+  }
+</style>

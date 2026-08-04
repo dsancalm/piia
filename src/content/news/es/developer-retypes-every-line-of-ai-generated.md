@@ -10,25 +10,25 @@ priority: routine
 tags: [programación, ia, productividad]
 generatedBy: deepseek/deepseek-v4-flash-0731
 ---
-El retipeo manual como antídoto contra la deuda cognitiva
+## El retipeo manual como antídoto contra la deuda cognitiva
 
 Un programador que usa asistentes de codificación explica en Hacker News por qué obliga al modelo a mostrarle el código en el chat en lugar de aplicarlo directamente. Su método: copiar el código generado, pegarlo en el editor y teclearlo a mano. Escribe cada línea literalmente.
 
-El autor admite que revisar pull requests generados por IA no le gusta. "No disfruto hacerlo", dice. Así que cambió el flujo para sus proyectos personales. En lugar de aceptar cambios automáticos, configuró las instrucciones del asistente para que nunca toque archivos directamente. El modelo solo propone, y él transcribe.
+El autor admite que revisar pull requests generados por IA no le gusta. “No disfruto hacerlo”, dice. Así que cambió el flujo para sus proyectos personales. En lugar de aceptar cambios automáticos, configuró las instrucciones del asistente para que nunca toque archivos directamente. El modelo solo propone, y él transcribe.
 
 El resultado, según su propia estimación, es que va el doble de rápido que sin IA. No diez veces más rápido, sino dos. La diferencia la atribuye a que el retipeo fuerza una lectura activa: no pasas los ojos por encima del diff, te ves obligado a entender cada línea para poder escribirla.
 
 Las instrucciones que usa son explícitas:
 
-```
+```text
 I want to understand every line of code that goes into this project. Never create, edit, move, rename, or delete project files unless I explicitly ask you to do so. Instead, show me every proposed edit in the chat so I can type it in manually.
 ```
 
-```
+```text
 Do not run commands that modify project files, install dependencies, or change repository state unless I explicitly request that action. Instead, show me those commands in the chat so I can run them manually.
 ```
 
-```
+```text
 I'm an experienced developer. Do not explain syntax, APIs, programming concepts, or implementation details unless explicitly asked.
 ```
 

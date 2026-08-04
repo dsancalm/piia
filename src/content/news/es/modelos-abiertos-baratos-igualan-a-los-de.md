@@ -26,4 +26,4 @@ No hay código en el estudio, así que la aplicación directa es conceptual: esc
 
 ## Lo que no se sabe
 
-El coste exacto por instancia de cada juez no se publica, solo el factor de 100 veces. Tampoco se detalla qué prueba estadística respalda el "estadísticamente indistinguible", ni los intervalos de confianza. La regla de unanimidad no se ha probado en otros benchmarks ni con otras combinaciones de modelos. El rubric humano usado como referencia tampoco se describe. Si la unanimidad funciona porque estos tres modelos concretos comparten un sesgo, en otro contexto podría fallar.
+El coste exacto por instancia de cada juez no se publica, solo el factor de 100 veces. Tampoco se detalla qué prueba estadística respalda el “estadísticamente indistinguible”, ni los intervalos de confianza. La regla de unanimidad no se ha probado en otros benchmarks ni con otras combinaciones de modelos. El rubric humano usado como referencia tampoco se describe. Si la unanimidad funciona porque estos tres modelos concretos comparten un sesgo, en otro contexto podría fallar.

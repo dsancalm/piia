@@ -1,6 +1,6 @@
 ---
-title: "Modelos abiertos baratos igualan a los de frontera al calificar pruebas de matemáticas"
-summary: "Un estudio en arXiv comparó tres modelos abiertos económicos contra Claude Opus y Gemini como jueces de exámenes de la Olimpiada Internacional de Matemáticas. Su concordancia con calificaciones humanas fue estadísticamente indistinguible, con un costo hasta 100 veces menor."
+title: "Cheap open models match frontier ones at grading math proofs"
+summary: "An arXiv study pitted three cheap open models against Claude Opus and Gemini as judges of International Mathematical Olympiad proofs. Their agreement with human grades was statistically indistinguishable, at up to 100 times lower cost."
 lang: en
 story: modelos-abiertos-baratos-igualan-a-los-de
 publishedAt: 2026-08-04T11:44:29.616Z
@@ -10,18 +10,18 @@ priority: urgent
 tags: [arxiv, evaluación, modelos, matemáticas]
 generatedBy: deepseek/deepseek-v4-flash-0731
 ---
-Calificar pruebas matemáticas en lenguaje natural con modelos grandes cuesta caro. Un estudio reciente en arXiv sugiere que tres modelos abiertos baratos rinden igual que los de frontera cuando actúan como jueces, y que una regla de unanimidad mejora la estabilidad de la decisión.
+Grading natural-language math proofs with large models is expensive. A recent arXiv study suggests three cheap open models do just as well as frontier ones when acting as judges, and that a unanimity rule makes the decision more stable.
 
-El trabajo usa IMO-GradingBench, un benchmark de 1000 instancias. Primero validaron con 200 de ellas. Compararon tres jueces económicos (GPT-OSS 120B, DeepSeek-V4 Flash y Gemma-4 31B) contra Claude Opus 4.7 y Gemini 3.1 Pro. La concordancia con las decisiones humanas de aprobado/reprobado fue estadísticamente indistinguible entre ambos grupos. El costo de los baratos es hasta 100 veces menor.
+The work uses IMO-GradingBench, a 1000-instance benchmark. They validated first on 200 of them. They compared three cheap judges (GPT-OSS 120B, DeepSeek-V4 Flash and Gemma-4 31B) against Claude Opus 4.7 and Gemini 3.1 Pro. Agreement with human pass/fail decisions was statistically indistinguishable between the two groups. The cheap ones cost up to 100 times less.
 
-Luego extendieron el análisis a las 1000 instancias completas. Ahí probaron varias reglas de agregación. La de unanimidad, donde el problema se aprueba solo si todos los jueces lo aprueban, dio la mayor concordancia con el criterio humano y la menor variabilidad entre ejecuciones, medida en cuatro réplicas.
+They then extended the analysis to the full 1000 instances. There they tried several aggregation rules. Unanimity, where a problem passes only if every judge passes it, gave the highest agreement with the human criterion and the lowest variability across runs, measured over four replicates.
 
-No hay código en el paper que puedas ejecutar directamente. La contribución es metodológica: puedes montar un pipeline de evaluación con estos modelos abiertos y una regla de votación simple, y esperar resultados comparables a los de usar modelos de pago por API, a una fracción del coste.
+There is no code in the paper you can run directly. The contribution is methodological: you can build an evaluation pipeline with these open models and a simple voting rule, and expect results comparable to paid API models at a fraction of the cost.
 
-Lo que no se sabe:
+What is not known:
 
-- El coste exacto por instancia de cada juez económico y de los modelos de frontera. El factor de 100 veces es una estimación agregada, no un desglose por llamada.
-- La definición precisa de "estadísticamente indistinguible". El paper no detalla los intervalos de confianza ni las pruebas estadísticas usadas para esa afirmación.
-- Si estos jueces rinden igual en otros conjuntos de datos o en otras áreas de la matemática. IMO-GradingBench es un dominio concreto.
-- La regla de unanimidad se identificó después de ver los resultados (post-hoc). Requiere replicación independiente en otros benchmarks y con otros modelos antes de tomarla como una ley general.
-- Los detalles del rubric humano usado para la calificación de referencia. Sin eso, es difícil saber qué tipo de errores castiga la regla de unanimidad.
+- The exact per-instance cost of each cheap judge and of the frontier models. The 100x factor is an aggregate estimate, not a per-call breakdown.
+- The precise definition of “statistically indistinguishable”. The paper does not spell out the confidence intervals or the statistical tests behind that claim.
+- Whether these judges do as well on other datasets or in other areas of mathematics. IMO-GradingBench is a specific domain.
+- The unanimity rule was identified after seeing the results (post-hoc). It needs independent replication on other benchmarks and with other models before treating it as a general law.
+- The details of the human rubric used for the reference grades. Without that, it is hard to tell what kind of errors the unanimity rule penalizes.

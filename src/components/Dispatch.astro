@@ -24,12 +24,22 @@ const { entry, lang, lead = false } = Astro.props;
 const { title, summary, story, publishedAt, sourceUrl, sourceName, priority, tags } = entry.data;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
 
+// El despacho de portada es el contenido principal de la página: su titular es
+// el h1. El resto de la pila vive dentro de la sección "También hoy" (h2), así
+// que sus titulares son h3.
+const Heading = lead ? 'h1' : 'h3';
+
 const t = {
   es: { source: 'Fuente', read: 'Leer el despacho' },
   en: { source: 'Source', read: 'Read the dispatch' },
 }[lang];
 
-const time = publishedAt.toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' });
+// TZ fija: sin ella, la hora impresa dependería del TZ del runner de CI.
+const time = publishedAt.toLocaleTimeString(lang, {
+  hour: '2-digit',
+  minute: '2-digit',
+  timeZone: 'Europe/Madrid',
+});
 ---
 
 <article class:list={['dispatch', { lead }]}>
@@ -38,9 +48,9 @@ const time = publishedAt.toLocaleTimeString(lang, { hour: '2-digit', minute: '2-
     <time datetime={publishedAt.toISOString()}>{time}</time>
   </div>
 
-  <h2>
+  <Heading style={`view-transition-name: d-${story};`}>
     <a href={`${base}/${lang}/${story}/`}>{title}</a>
-  </h2>
+  </Heading>
 
   <p class="summary">{summary}</p>
 
@@ -48,7 +58,7 @@ const time = publishedAt.toLocaleTimeString(lang, { hour: '2-digit', minute: '2-
     <a class="source hl hl-pink" href={sourceUrl} rel="noopener nofollow">
       {t.source}: {sourceName}
     </a>
-    {tags.length > 0 && <p class="tags">{tags.map((tag) => `#${tag}`).join(' ')}</p>}
+    {tags.length > 0 && <p class="tags">{tags.join(' · ')}</p>}
   </div>
 </article>
 
@@ -67,13 +77,13 @@ const time = publishedAt.toLocaleTimeString(lang, { hour: '2-digit', minute: '2-
     color: var(--ink-soft);
   }
 
-  h2 {
+  :is(h1, h3) {
     font-size: 1.45rem;
     margin-bottom: var(--s2);
     text-wrap: balance;
   }
 
-  h2 a {
+  :is(h1, h3) a {
     text-decoration: none;
     /* El titular se subraya al pasar, como quien marca el artículo que va a leer. */
     background-image: linear-gradient(transparent 88%, var(--hl-yellow) 88%);
@@ -82,9 +92,15 @@ const time = publishedAt.toLocaleTimeString(lang, { hour: '2-digit', minute: '2-
     transition: background-size 320ms cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  h2 a:hover,
-  h2 a:focus-visible {
+  :is(h1, h3) a:hover,
+  :is(h1, h3) a:focus-visible {
     background-size: 100% 100%;
+  }
+
+  /* Al pasar por el despacho, el sello se recoloca un pelín: el tampón aún
+     está fresco. La inclinación base viene de --tilt en el propio sello. */
+  .dispatch:hover :global(.stamp) {
+    transform: rotate(calc(var(--tilt, 0deg) + 1.3deg)) scale(1.05);
   }
 
   .summary {
@@ -121,7 +137,7 @@ const time = publishedAt.toLocaleTimeString(lang, { hour: '2-digit', minute: '2-
   }
 
   /* El despacho de portada: el que se lee desde la otra punta de la mesa. */
-  .lead h2 {
+  .lead :is(h1, h3) {
     font-size: clamp(2.4rem, 6.5vw, 4.4rem);
     line-height: 0.98;
   }

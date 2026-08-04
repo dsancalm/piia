@@ -6,14 +6,18 @@ import { defineConfig } from 'astro/config';
  * teclado: sin esto, quien no usa ratón no llega al final de un comando largo.
  */
 function scrollableCodeBlocks() {
-  return (tree) => {
+  return (tree, file) => {
+    // El label se anuncia en el idioma de la página: el archivo vive bajo
+    // news/es/ o news/en/.
+    const path = String(file?.path ?? file?.history?.[0] ?? '');
+    const label = /news[\\/]en[\\/]/.test(path) ? 'Code block' : 'Bloque de código';
     const walk = (node) => {
       if (node.type === 'element' && node.tagName === 'pre') {
         node.properties = {
           ...node.properties,
           tabindex: '0',
           role: 'region',
-          'aria-label': 'Bloque de código',
+          'aria-label': label,
         };
       }
       for (const child of node.children ?? []) walk(child);

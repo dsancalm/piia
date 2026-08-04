@@ -1,5 +1,5 @@
 ---
-import { render } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Stamp from './Stamp.astro';
 
@@ -12,6 +12,15 @@ const { Content } = await render(entry);
 const { title, summary, lang, story, publishedAt, sourceUrl, sourceName, priority, generatedBy } =
   entry.data;
 
+// Anterior y siguiente dentro del mismo idioma, por fecha: el lector diario
+// puede hojear el fanzine sin volver a la portada.
+const siblings = (await getCollection('news', ({ data }) => data.lang === lang)).sort(
+  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime()
+);
+const idx = siblings.findIndex((e) => e.data.story === story);
+const newer = idx > 0 ? siblings[idx - 1] : null;
+const olderPiece = idx >= 0 && idx < siblings.length - 1 ? siblings[idx + 1] : null;
+
 const t = {
   es: {
     source: 'Fuente original',
@@ -19,6 +28,9 @@ const t = {
     disclosure:
       'Este texto lo ha escrito una máquina a partir de la fuente enlazada. Nadie lo ha revisado antes de publicarlo.',
     back: 'Volver a la portada',
+    pager: 'Otros despachos',
+    newer: 'Más reciente',
+    older: 'Anterior',
   },
   en: {
     source: 'Original source',
@@ -26,6 +38,9 @@ const t = {
     disclosure:
       'This text was written by a machine from the linked source. Nobody reviewed it before publishing.',
     back: 'Back to the front page',
+    pager: 'Other dispatches',
+    newer: 'Newer',
+    older: 'Older',
   },
 }[lang];
 
@@ -36,6 +51,7 @@ const date = publishedAt.toLocaleDateString(lang, {
   year: 'numeric',
   hour: '2-digit',
   minute: '2-digit',
+  timeZone: 'Europe/Madrid',
 });
 ---
 
@@ -51,7 +67,7 @@ const date = publishedAt.toLocaleDateString(lang, {
         <Stamp priority={priority} lang={lang} />
         <time datetime={publishedAt.toISOString()}>{date}</time>
       </div>
-      <h1>{title}</h1>
+      <h1 style={`view-transition-name: d-${story};`}>{title}</h1>
       <p class="lede">{summary}</p>
     </header>
 
@@ -60,7 +76,7 @@ const date = publishedAt.toLocaleDateString(lang, {
       <p class="disclosure">{t.disclosure}</p>
       <p class="links">
         <a class="src hl hl-pink" href={sourceUrl} rel="noopener nofollow">{t.source}: {sourceName}</a>
-        <span class="by">{t.written} <code>{generatedBy}</code></span>
+        <span class="by">{t.written} <code translate="no">{generatedBy}</code></span>
       </p>
     </aside>
 
@@ -69,8 +85,69 @@ const date = publishedAt.toLocaleDateString(lang, {
     </div>
 
     <a class="back" href={`${base}/${lang}/`}>{t.back}</a>
+
+    {
+      (newer || olderPiece) && (
+        <nav class="pager" aria-label={t.pager}>
+          {newer && (
+            <a class="page newer" href={`${base}/${lang}/${newer.data.story}/`}>
+              <span class="page-label">← {t.newer}</span>
+              <span class="page-title">{newer.data.title}</span>
+            </a>
+          )}
+          {olderPiece && (
+            <a class="page older" href={`${base}/${lang}/${olderPiece.data.story}/`}>
+              <span class="page-label">{t.older} →</span>
+              <span class="page-title">{olderPiece.data.title}</span>
+            </a>
+          )}
+        </nav>
+      )
+    }
   </article>
 </Base>
+
+<script>
+  // Botón de copiar en cada bloque de código: la interacción más útil del
+  // producto. El DOM lo crea este script para que el HTML siga funcionando
+  // íntegro sin JavaScript.
+  const es = document.documentElement.lang === 'es';
+  const labels = {
+    copy: es ? 'Copiar' : 'Copy',
+    done: es ? 'Copiado' : 'Copied',
+    fail: es ? 'No se pudo copiar' : 'Copy failed',
+  };
+
+  for (const pre of document.querySelectorAll<HTMLPreElement>('.prose pre')) {
+    const wrap = document.createElement('div');
+    wrap.className = 'code-wrap';
+    pre.replaceWith(wrap);
+    wrap.appendChild(pre);
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy';
+    btn.textContent = labels.copy;
+    btn.setAttribute('aria-live', 'polite');
+    wrap.appendChild(btn);
+
+    let timer: ReturnType<typeof setTimeout>;
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(pre.innerText.replace(/\n$/, ''));
+        btn.textContent = labels.done;
+        btn.classList.add('done');
+      } catch {
+        btn.textContent = labels.fail;
+      }
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        btn.textContent = labels.copy;
+        btn.classList.remove('done');
+      }, 1800);
+    });
+  }
+</script>
 
 <style>
   .piece {
@@ -153,12 +230,24 @@ const date = publishedAt.toLocaleDateString(lang, {
 
   .prose {
     max-width: var(--measure);
+    /* Los artículos citan URLs enteras como texto de enlace; sin esto, una URL
+       larga revienta el ancho en móvil. */
+    overflow-wrap: break-word;
   }
 
   .prose :global(h2) {
     font-size: 1.75rem;
     margin-top: var(--s5);
     margin-bottom: var(--s2);
+    /* Cada sección lleva su pasada de subrayador, como el lector que marca el
+       apartado que le importa. */
+    width: fit-content;
+    padding: 0 0.16em;
+    margin-left: -0.16em;
+    background-image: var(--stroke-yellow);
+    background-repeat: no-repeat;
+    background-size: 100% 0.45em;
+    background-position: 0 94%;
   }
 
   .prose :global(p) {
@@ -199,13 +288,17 @@ const date = publishedAt.toLocaleDateString(lang, {
     overflow-x: auto;
     font-size: 0.9rem;
     line-height: 1.6;
-    /* Sombra a la derecha cuando el comando se sale: sin ella no hay forma de
-       saber que queda contenido por desplazar. */
-    background-image: linear-gradient(to left, rgba(0, 0, 0, 0.45), transparent 2.5rem);
-    background-repeat: no-repeat;
-    background-position: right;
-    background-size: 2.5rem 100%;
-    background-attachment: local;
+    /* Señal de contenido desplazable: una sombra clara fija en el filo derecho
+       (visible sobre el fondo oscuro) y una capa del color del bloque que viaja
+       con el contenido y la tapa al llegar al final. La versión anterior era
+       negro sobre negro: invisible. */
+    background-image:
+      linear-gradient(to left, #16150f 30%, rgba(22, 21, 15, 0)),
+      linear-gradient(to left, rgba(255, 248, 236, 0.35), rgba(255, 248, 236, 0) 85%);
+    background-repeat: no-repeat, no-repeat;
+    background-position: right center, right center;
+    background-size: 1.75rem 100%, 2rem 100%;
+    background-attachment: local, scroll;
     outline: 3px solid var(--ink);
     outline-offset: 0;
   }
@@ -217,6 +310,14 @@ const date = publishedAt.toLocaleDateString(lang, {
 
   .prose :global(pre code) {
     font-family: var(--mono);
+  }
+
+  /* Los bloques `text` son prompts en lenguaje natural, no comandos: se
+     envuelven en vez de cortarse con scroll. El código real conserva el
+     desplazamiento para no romper líneas copiables. */
+  .prose :global(pre[data-language='text']) {
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
   }
 
   /* Código dentro de prosa: marcado, no encajonado. */
@@ -238,6 +339,170 @@ const date = publishedAt.toLocaleDateString(lang, {
   }
 
   .back:hover {
-    background-image: linear-gradient(transparent 78%, var(--hl-teal) 78%);
+    background-image: linear-gradient(transparent 78%, var(--hl-yellow-mark) 78%);
+  }
+
+  /* Hojear el fanzine: despacho anterior y siguiente bajo su pliegue. */
+  .pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s3);
+    margin-top: var(--s4);
+    padding-top: var(--s3);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='6' viewBox='0 0 600 6' preserveAspectRatio='none'%3E%3Cpath d='M2 3.4C74 1.6 148 4.2 223 2.8 305 1.3 384 4.6 462 2.6 512 1.3 556 3.8 598 2.4' fill='none' stroke='%23111' stroke-width='1.6' stroke-linecap='round' opacity='.32'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: 100% 6px;
+    background-position: top;
+    max-width: var(--measure);
+  }
+
+  .page {
+    display: grid;
+    gap: var(--s1);
+    text-decoration: none;
+    align-content: start;
+  }
+
+  .page.older {
+    grid-column: 2;
+    text-align: right;
+    justify-items: end;
+  }
+
+  .page-label {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+
+  .page-title {
+    font-family: var(--marker);
+    font-size: 1.05rem;
+    line-height: 1.2;
+    background-image: linear-gradient(transparent 82%, var(--hl-yellow-mark) 82%);
+    background-size: 0% 100%;
+    background-repeat: no-repeat;
+    transition: background-size 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .page.older .page-title {
+    background-position: right;
+  }
+
+  .page:hover .page-title,
+  .page:focus-visible .page-title {
+    background-size: 100% 100%;
+  }
+
+  /* El botón de copiar: una pegatina sobre la fotocopia. Lo monta el script;
+     de ahí el :global. */
+  .prose :global(.code-wrap) {
+    position: relative;
+    margin-block: var(--s3) var(--s4);
+  }
+
+  .prose :global(.code-wrap pre) {
+    margin-block: 0;
+  }
+
+  .prose :global(.copy) {
+    position: absolute;
+    top: -0.85em;
+    right: 0.7em;
+    font-family: var(--marker);
+    font-size: 0.8rem;
+    line-height: 1;
+    padding: 0.35em 0.65em 0.28em;
+    color: var(--ink);
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: 9px 4px 10px 5px;
+    cursor: pointer;
+    transform: rotate(-1deg);
+  }
+
+  .prose :global(.copy:hover) {
+    background: var(--hl-yellow);
+  }
+
+  .prose :global(.copy.done) {
+    background: var(--hl-teal);
+  }
+
+  /* El recorte de procedencia se pega al margen derecho en pantallas anchas:
+     la marginalia del zine, no un vacío. En columna única vuelve a su sitio,
+     antes del texto. */
+  @media (min-width: 72rem) {
+    .piece {
+      display: grid;
+      grid-template-columns: minmax(0, var(--measure)) minmax(16rem, 21rem);
+      column-gap: var(--s5);
+      align-items: start;
+    }
+
+    .piece > header {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .origin {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      position: sticky;
+      top: var(--s4);
+      margin-bottom: 0;
+      transform: rotate(0.9deg);
+    }
+
+    .prose {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .back {
+      grid-column: 1;
+      grid-row: 3;
+    }
+
+    .pager {
+      grid-column: 1;
+      grid-row: 4;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes copy-pop {
+      from {
+        transform: rotate(-1deg) scale(1.15);
+      }
+      to {
+        transform: rotate(-1deg) scale(1);
+      }
+    }
+
+    .prose :global(.copy.done) {
+      animation: copy-pop 220ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* El subrayador de cada sección se pasa al entrar en el viewport. Donde no
+       hay soporte de scroll-driven animations, queda la marca estática. */
+    @supports (animation-timeline: view()) {
+      @keyframes h2-draw {
+        from {
+          background-size: 0% 0.45em;
+        }
+        to {
+          background-size: 100% 0.45em;
+        }
+      }
+
+      .prose :global(h2) {
+        animation: h2-draw linear both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 40%;
+      }
+    }
   }
 </style>
