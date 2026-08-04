@@ -1,0 +1,55 @@
+---
+import '../styles/global.css';
+import Masthead from '../components/Masthead.astro';
+import Colophon from '../components/Colophon.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  lang: 'es' | 'en';
+  /** Ruta equivalente en el otro idioma, para el conmutador. */
+  altHref: string;
+}
+
+const { title, description, lang, altHref } = Astro.props;
+const t = {
+  es: { skip: 'Saltar al contenido' },
+  en: { skip: 'Skip to content' },
+}[lang];
+---
+
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <link rel="alternate" hreflang={lang === 'es' ? 'en' : 'es'} href={new URL(altHref, Astro.site)} />
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body>
+    <!--
+      THESIS: Un fanzine técnico fotocopiado que explica, no un feed que acumula.
+      Rechaza la retícula de tarjetas oscuras con etiqueta monoespaciada que envía
+      cualquier blog de IA.
+      OWN-WORLD: Papel crema #FFF8EC con grano de pulpa, tinta negra de rotulador,
+      y tres subrayadores planos (amarillo #FFE34D vivo, rosa #FF6BAE procedencia,
+      teal #00C7B7 verificable). Marcos de trazo irregular dibujado, nunca cajas CSS.
+      STORY: El lector ve qué ha cambiado hoy en IA, entiende por qué le afecta, y
+      llega a la fuente original en un clic sabiendo que lo redactó una máquina.
+      FIRST VIEWPORT: Cabecera rotulada a mano con la fecha del número; debajo, el
+      despacho de portada a tamaño de cartel con su subrayado; a su lado, la pila
+      del resto del día en trazo más fino.
+      FORM: Zine técnico dibujado a mano; retador de catálogo elegido por el usuario
+      sobre el asignado (era el 5 de mi lista); seed fa142f91.
+      FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+    -->
+    <a class="skip" href="#main">{t.skip}</a>
+    <Masthead lang={lang} altHref={altHref} />
+    <main id="main">
+      <slot />
+    </main>
+    <Colophon lang={lang} />
+  </body>
+</html>

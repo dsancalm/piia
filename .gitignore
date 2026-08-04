@@ -1,0 +1,30 @@
+# Agent skills (restore with: npx skills experimental_install)
+.claude/skills/
+.agents/
+
+# Dependencies
+node_modules/
+
+# Astro build output
+dist/
+.astro/
+
+# Environment
+.env
+.env.production
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editors
+.idea/
+
+# OS
+.DS_Store
+
+# Impeccable: logs efímeros del servidor de decisión
+.impeccable/questions/
+.impeccable/sketches/

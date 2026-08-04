@@ -1,0 +1,23 @@
+{
+  "name": "piia",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/markdown-remark": "^7.2.2",
+    "@fontsource-variable/figtree": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@fontsource/permanent-marker": "^5.3.0",
+    "astro": "^7.1.6",
+    "fast-xml-parser": "^5.10.1"
+  },
+  "description": "Noticias de IA generadas y redactadas automáticamente"
+}

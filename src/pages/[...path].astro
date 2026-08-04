@@ -1,0 +1,19 @@
+---
+import { getCollection } from 'astro:content';
+import Piece from '../components/Piece.astro';
+
+// Una sola ruta de resto para los dos idiomas: el path completo (`es/slug`) es
+// único, mientras que dos rutas dinámicas hermanas con el mismo nombre de
+// parámetro se deduplican entre sí y pierden la mitad de los despachos.
+export async function getStaticPaths() {
+  const all = await getCollection('news');
+  return all.map((entry) => ({
+    params: { path: `${entry.data.lang}/${entry.data.story}` },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+---
+
+<Piece entry={entry} />

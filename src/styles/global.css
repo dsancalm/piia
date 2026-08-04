@@ -1,0 +1,146 @@
+@import '@fontsource/permanent-marker/latin-400.css';
+@import '@fontsource-variable/figtree/wght.css';
+@import '@fontsource-variable/jetbrains-mono/wght.css';
+
+:root {
+  /* Paleta del zine. El papel es el suelo, la tinta es el texto, y los tres
+     subrayadores son señales: amarillo marca lo vivo, rosa marca la procedencia,
+     teal marca lo verificable. Ninguno decora. */
+  --paper: #fff8ec;
+  --paper-deep: #f5ecd8;
+  --ink: #111111;
+  --ink-soft: #4a4438;
+  /* El amarillo del sello va sobre tinta y ahí rinde de sobra. Sobre el papel
+     crema se queda en 1.32:1, así que el trazo del subrayador usa uno más
+     saturado: si no, la señal principal del mundo no se ve. */
+  --hl-yellow: #ffe34d;
+  --hl-yellow-mark: #ffd814;
+  --hl-pink: #ff6bae;
+  --hl-teal: #00c7b7;
+
+  --marker: 'Permanent Marker', cursive;
+  --sans: 'Figtree Variable', system-ui, sans-serif;
+  --mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+  /* Ritmo único. Encima de un titular siempre cabe más aire que debajo. */
+  --s1: 0.5rem;
+  --s2: 0.875rem;
+  --s3: 1.5rem;
+  --s4: 2.5rem;
+  --s5: 4rem;
+  --s6: 6.5rem;
+
+  --measure: 68ch;
+  --edge: 2.5px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--paper);
+  /* Fibra de papel. Trazos cortos e irregulares en tres direcciones, no una
+     trama de puntos: la pulpa del papel barato tiene hebra, no retícula. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cg stroke='%23111' stroke-linecap='round' fill='none' stroke-width='.9'%3E%3Cpath d='M14 22h7M58 13l5 2M112 28l5-3M151 18h6M39 52l4 3M92 47h7M133 61l5-1M23 80l6 2M73 90h6M124 84l5 3M163 97h5M11 117l5-2M56 126h7M103 112l4 3M147 132l6-2M32 150h6M80 160l5-2M129 154l5 2M168 168h5' opacity='.032'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--marker);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin: 0;
+  /* El rotulador real ya trae carácter; forzar más tracking lo emborrona. */
+}
+
+a {
+  color: inherit;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+/* El anillo de foco va en tinta: el teal sobre papel se queda en 1.94:1 y no
+   llega al mínimo de 3:1 para un indicador no textual. El teal se conserva como
+   halo exterior, que ahí sí ayuda a localizarlo. */
+:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--hl-teal);
+}
+
+/* El subrayador. Un trazo de rotulador que se sale por los extremos y tiene el
+   borde superior desigual, como el fluorescente pasado a mano sobre la
+   fotocopia: nunca cubre, siempre deja leer. */
+.hl {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='24' viewBox='0 0 200 24' preserveAspectRatio='none'%3E%3Cpath d='M2 16.5c26-2.4 52-3.6 79-3.1 30 .6 61 2 117 .5v7.3c-52 1.7-84 .3-116-.4-28-.6-54 .6-80 2.6z' fill='%23FFD814'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: 100% 0.62em;
+  background-position: 0 88%;
+  padding: 0 0.16em;
+}
+
+/* Variantes por color. El rosa marca procedencia y el teal lo verificable. */
+.hl-pink {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='24' viewBox='0 0 200 24' preserveAspectRatio='none'%3E%3Cpath d='M1 15.8c28-2.8 55-3.3 84-2.7 32 .7 63 1.9 114 .6v7.6c-48 1.9-83 .5-114-.2-29-.7-56 .4-84 2.4z' fill='%23FF6BAE'/%3E%3C/svg%3E");
+}
+
+.hl-teal {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='24' viewBox='0 0 200 24' preserveAspectRatio='none'%3E%3Cpath d='M3 16.2c25-2.1 51-3.4 78-2.9 31 .5 62 1.8 116 .4v7.4c-50 1.8-85 .4-116-.3-27-.5-53 .7-78 2.5z' fill='%2300C7B7'/%3E%3C/svg%3E");
+}
+
+/* Marco dibujado a mano. El trazo cambia de grosor, las esquinas se pasan de
+   largo y ningún lado es recto: es la diferencia entre papel pegado con cinta y
+   un div con border-radius. */
+.drawn {
+  border: 0;
+  border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23111' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9.5 14.5C34 11.2 63 10.4 97 12.1c8.2.4 12.6 1.2 13.8 3.4 2.1 3.9 2.4 34 1.6 62.7-.5 17.4-1.2 25.6-3.1 27.2-2.4 2-33 3.1-63 2.6-27-.4-40.8-1.3-42.4-3.3-1.8-2.2-2.3-31-1.8-59.4.4-21.4 1.1-29.1 2.9-30.4z' stroke-width='2.6'/%3E%3Cpath d='M13.2 9.8c22-1.9 46-2.4 71-1.6' stroke-width='1.5' opacity='.55'/%3E%3Cpath d='M114.6 44c.7 19 .6 39-.4 55' stroke-width='1.5' opacity='.5'/%3E%3C/g%3E%3C/svg%3E")
+    22 / 20px / 0 round;
+}
+
+.wrap {
+  width: min(100% - 2.5rem, 74rem);
+  margin-inline: auto;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--ink);
+  color: var(--paper);
+  padding: var(--s2) var(--s3);
+  z-index: 50;
+}
+
+.skip:focus {
+  left: var(--s3);
+  top: var(--s3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

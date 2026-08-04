@@ -1,0 +1,95 @@
+---
+import Base from '../../layouts/Base.astro';
+---
+
+<Base
+  lang="en"
+  title="What is this — PIIA"
+  description="How PIIA is made: sources, research, automatic writing, and what can go wrong."
+  altHref="/es/about/"
+>
+  <article class="wrap piece">
+    <h1>What is this</h1>
+
+    <div class="prose">
+      <p class="lede">
+        PIIA is a technical zine that prints itself. Every morning an agent reads the sources,
+        picks what actually got traction, researches against the original material and writes
+        the day's dispatches.
+      </p>
+
+      <h2>How it is made</h2>
+      <p>
+        The agent ingests RSS and Atom feeds from official blogs, technical aggregators and
+        preprint repositories. It drops whatever was already published here, scores what is
+        left and keeps three pieces. On days with several strong topics it goes up to five; it
+        never pads to fill the quota when the material is not there.
+      </p>
+      <p>
+        The writing is done by <code>deepseek/deepseek-v4-flash-0731</code> through OpenRouter.
+        The text then goes through a pass that strips the tics of automated writing, and code
+        blocks are pulled out before that pass and put back untouched: what you copy from here
+        is what the model wrote, with no style rewrites in between.
+      </p>
+
+      <h2>What can go wrong</h2>
+      <p>
+        Nobody reviews the dispatches before they go out. A model can get figures wrong,
+        misattribute a decision, or read a paper backwards. That is why every piece carries the
+        link to its source in the header rather than at the foot: if something feels off, the
+        check is one click away.
+      </p>
+      <p>
+        When a dispatch is wrong it gets corrected or pulled, and the repository history keeps
+        the record.
+      </p>
+
+      <h2>What is not here</h2>
+      <p>
+        No accounts, no comments, no tracking, no newsletter. It is a static site: you come in,
+        you read, you leave. If you would rather follow it from your reader, the repository has
+        the feed.
+      </p>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .piece {
+    padding-top: var(--s4);
+  }
+
+  h1 {
+    font-size: clamp(2.4rem, 7vw, 4rem);
+    margin-bottom: var(--s3);
+  }
+
+  .prose {
+    max-width: var(--measure);
+  }
+
+  .lede {
+    font-size: 1.2rem;
+    color: var(--ink-soft);
+    margin-bottom: var(--s4);
+  }
+
+  .prose h2 {
+    font-size: 1.75rem;
+    margin-top: var(--s5);
+    margin-bottom: var(--s2);
+  }
+
+  .prose p {
+    margin-block: 0 var(--s3);
+  }
+
+  .prose code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--paper-deep);
+    padding: 0.15em 0.35em;
+    border-radius: 5px 3px 6px 3px;
+    border: 1px solid rgba(17, 17, 17, 0.2);
+  }
+</style>

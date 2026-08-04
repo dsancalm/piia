@@ -1,0 +1,76 @@
+name: Tirada diaria
+
+on:
+  schedule:
+    # 06:30 UTC a diario. En hora peninsular española son las 08:30 en invierno
+    # y las 09:30 en verano, así que el número está listo antes de la jornada.
+    - cron: '30 6 * * *'
+  workflow_dispatch:
+    inputs:
+      max:
+        description: 'Máximo de despachos en esta tirada'
+        required: false
+        default: '5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  write:
+    runs-on: ubuntu-latest
+    outputs:
+      published: ${{ steps.commit.outputs.published }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Generar los despachos del día
+        id: generate
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL: deepseek/deepseek-v4-flash-0731
+          # La entrada del disparo manual llega por variable de entorno y no
+          # interpolada en el comando, para que no pueda inyectar shell.
+          MAX_DISPATCHES: ${{ inputs.max || '5' }}
+        run: node scripts/publish.mjs --max "$MAX_DISPATCHES"
+
+      - name: Comprobar que el sitio sigue compilando
+        run: npm run build
+
+      - name: Commitear lo publicado
+        id: commit
+        run: |
+          set -euo pipefail
+          git config user.name  "piia-bot"
+          git config user.email "piia-bot@users.noreply.github.com"
+          git add src/content/news data/seen.json
+          if git diff --cached --quiet; then
+            echo "Sin cambios: no se publica nada hoy."
+            echo "published=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # El mensaje no incluye titulares. Vienen de fuentes externas y no
+          # tienen por qué acabar dentro de un comando de shell.
+          count=$(git diff --cached --name-only --diff-filter=A -- src/content/news | wc -l | tr -d ' ')
+          git commit -m "Tirada del $(date -u +%Y-%m-%d): ${count} archivo(s)"
+          git push
+          echo "published=true" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: write
+    if: needs.write.outputs.published == 'true'
+    uses: ./.github/workflows/deploy.yml
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
