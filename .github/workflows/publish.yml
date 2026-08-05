@@ -24,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       published: ${{ steps.commit.outputs.published }}
+      sha: ${{ steps.commit.outputs.sha }}
     steps:
       - uses: actions/checkout@v7
 
@@ -65,11 +66,16 @@ jobs:
           git commit -m "Tirada del $(date -u +%Y-%m-%d): ${count} archivo(s)"
           git push
           echo "published=true" >> "$GITHUB_OUTPUT"
+          # El despliegue necesita este SHA. github.sha apunta al commit con el
+          # que arrancó la tirada, que es anterior al que se acaba de pushear.
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
   deploy:
     needs: write
     if: needs.write.outputs.published == 'true'
     uses: ./.github/workflows/deploy.yml
+    with:
+      ref: ${{ needs.write.outputs.sha }}
     permissions:
       contents: read
       pages: write

@@ -7,6 +7,11 @@ on:
   # push hecho con GITHUB_TOKEN no dispara otros workflows, así que encadenar
   # por evento de push no funcionaría.
   workflow_call:
+    inputs:
+      ref:
+        description: 'Commit a desplegar. Sin él se despliega github.sha, que en una llamada desde otro workflow es el commit anterior al que ese workflow acaba de pushear.'
+        required: false
+        type: string
   workflow_dispatch:
 
 permissions:
@@ -25,6 +30,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref || github.sha }}
 
       - uses: actions/setup-node@v7
         with:
