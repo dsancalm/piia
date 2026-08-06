@@ -1,0 +1,44 @@
+name: Sondeo de Reddit
+
+# Diagnóstico temporal: comprueba a qué puede acceder un runner de GitHub, que
+# sale por IP de datacenter. Se borra cuando la decisión esté tomada.
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probar los accesos públicos de Reddit
+        run: |
+          UA="PIIA/1.0 (+https://github.com/dsancalm/piia)"
+          for u in \
+            "https://www.reddit.com/r/LocalLLaMA/.rss" \
+            "https://www.reddit.com/r/LocalLLaMA/top.rss?t=day" \
+            "https://www.reddit.com/r/LocalLLaMA/top.json?t=day&limit=3" \
+            "https://old.reddit.com/r/LocalLLaMA/.rss" \
+            "https://rss.reddit.com/r/LocalLLaMA/.rss"
+          do
+            code=$(curl -s -o /tmp/out -w '%{http_code}' -A "$UA" -L --max-time 25 "$u" || echo "000")
+            n=$(grep -c "<entry>" /tmp/out 2>/dev/null || echo 0)
+            printf "%-62s HTTP:%s entradas:%s\n" "$u" "$code" "$n"
+          done
+
+      - name: Probar el token de aplicación de Reddit (OAuth sin usuario)
+        env:
+          ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+        run: |
+          if [ -z "$ID" ]; then
+            echo "Sin credenciales de Reddit: se omite la prueba de OAuth."
+            exit 0
+          fi
+          tok=$(curl -s -X POST https://www.reddit.com/api/v1/access_token \
+            -u "$ID:$SECRET" \
+            -d "grant_type=client_credentials" \
+            -A "PIIA/1.0" | python3 -c "import json,sys; print(json.load(sys.stdin).get('access_token',''))")
+          if [ -z "$tok" ]; then echo "No se obtuvo token"; exit 0; fi
+          code=$(curl -s -o /tmp/o -w '%{http_code}' -H "Authorization: Bearer $tok" -A "PIIA/1.0" \
+            "https://oauth.reddit.com/r/LocalLLaMA/top?t=day&limit=3")
+          echo "OAuth HTTP:$code"
+          head -c 300 /tmp/o
