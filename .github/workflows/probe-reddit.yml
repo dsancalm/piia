@@ -9,36 +9,48 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: Probar los accesos públicos de Reddit
+      - name: Contar entradas y ver qué trae cada feed
         run: |
           UA="PIIA/1.0 (+https://github.com/dsancalm/piia)"
-          for u in \
-            "https://www.reddit.com/r/LocalLLaMA/.rss" \
-            "https://www.reddit.com/r/LocalLLaMA/top.rss?t=day" \
-            "https://www.reddit.com/r/LocalLLaMA/top.json?t=day&limit=3" \
-            "https://old.reddit.com/r/LocalLLaMA/.rss" \
-            "https://rss.reddit.com/r/LocalLLaMA/.rss"
-          do
-            code=$(curl -s -o /tmp/out -w '%{http_code}' -A "$UA" -L --max-time 25 "$u" || echo "000")
-            n=$(grep -c "<entry>" /tmp/out 2>/dev/null || echo 0)
-            printf "%-62s HTTP:%s entradas:%s\n" "$u" "$code" "$n"
-          done
+          probe() {
+            code=$(curl -s -o /tmp/out -w '%{http_code}' -A "$UA" -L --max-time 25 "$1" || echo "000")
+            n=$(python3 -c "
+import re,sys
+try: x=open('/tmp/out',encoding='utf-8',errors='replace').read()
+except Exception: x=''
+print(len(re.findall(r'<entry[ >]', x)) or len(re.findall(r'<item[ >]', x)))
+")
+            printf "%-58s HTTP:%s entradas:%s\n" "$1" "$code" "$n"
+          }
 
-      - name: Probar el token de aplicación de Reddit (OAuth sin usuario)
-        env:
-          ID: ${{ secrets.REDDIT_CLIENT_ID }}
-          SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
-        run: |
-          if [ -z "$ID" ]; then
-            echo "Sin credenciales de Reddit: se omite la prueba de OAuth."
-            exit 0
-          fi
-          tok=$(curl -s -X POST https://www.reddit.com/api/v1/access_token \
-            -u "$ID:$SECRET" \
-            -d "grant_type=client_credentials" \
-            -A "PIIA/1.0" | python3 -c "import json,sys; print(json.load(sys.stdin).get('access_token',''))")
-          if [ -z "$tok" ]; then echo "No se obtuvo token"; exit 0; fi
-          code=$(curl -s -o /tmp/o -w '%{http_code}' -H "Authorization: Bearer $tok" -A "PIIA/1.0" \
-            "https://oauth.reddit.com/r/LocalLLaMA/top?t=day&limit=3")
-          echo "OAuth HTTP:$code"
-          head -c 300 /tmp/o
+          probe "https://www.reddit.com/r/LocalLLaMA/.rss"
+          sleep 5
+          probe "https://www.reddit.com/r/LocalLLaMA/top.rss?t=day"
+          sleep 5
+          probe "https://www.reddit.com/r/MachineLearning/.rss"
+          sleep 5
+
+          echo ""
+          echo "=== Campos de una entrada de LocalLLaMA ==="
+          curl -s -A "$UA" -L --max-time 25 "https://www.reddit.com/r/LocalLLaMA/.rss" -o /tmp/f.xml
+          python3 - <<'PY'
+import re, html
+x = open('/tmp/f.xml', encoding='utf-8', errors='replace').read()
+entries = re.findall(r'<entry[ >].*?</entry>', x, re.S)
+print("total entradas:", len(entries))
+if entries:
+    e = entries[0]
+    for tag in ('title', 'updated', 'id'):
+        m = re.search(r'<%s[^>]*>(.*?)</%s>' % (tag, tag), e, re.S)
+        if m: print(tag, "->", m.group(1)[:120])
+    link = re.search(r'<link[^>]*href="([^"]+)"', e)
+    print("link ->", link.group(1) if link else "no hay")
+    c = re.search(r'<content[^>]*>(.*?)</content>', e, re.S)
+    if c:
+        body = html.unescape(c.group(1))
+        hrefs = re.findall(r'href="([^"]+)"', body)
+        print("enlaces dentro del content:")
+        for h in hrefs[:8]:
+            print("   ", h[:110])
+        print("longitud del content:", len(body))
+PY
