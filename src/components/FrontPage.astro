@@ -14,12 +14,9 @@ const dispatches = all.sort((a, b) => b.data.publishedAt.getTime() - a.data.publ
 
 const [lead, ...rest] = dispatches;
 
-// Mientras el corpus siga siendo material de muestra, el número lo dice.
-const isSample = dispatches.every((d) => d.data.sourceUrl.includes('example.com'));
-
-// El número solo contiene los despachos de su propio día; lo anterior baja al
-// archivo. Sin este corte, "Número del [fecha]" mentiría en cuanto convivieran
-// dos tiradas, y el rail crecería sin límite.
+// El servicio solo contiene los despachos de su propio día; lo anterior baja al
+// archivo. Sin este corte, "Servicio del [fecha]" mentiría en cuanto convivieran
+// dos tiradas, y el índice crecería sin límite.
 const dayKey = (d: Date) => d.toLocaleDateString('en-CA', { timeZone: 'Europe/Madrid' });
 const issueKey = lead ? dayKey(lead.data.publishedAt) : '';
 const rail = rest.filter((e) => dayKey(e.data.publishedAt) === issueKey);
@@ -32,8 +29,15 @@ for (const e of older) {
   byDay.get(k)!.push(e);
 }
 
-const dateOpts = { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Madrid' } as const;
+const dateOpts = {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'Europe/Madrid',
+} as const;
 const issueDate = lead ? lead.data.publishedAt.toLocaleDateString(lang, dateOpts) : '';
+const issueCount = lead ? 1 + rail.length : 0;
 const dayLabel = (e: (typeof older)[number]) => e.data.publishedAt.toLocaleDateString(lang, dateOpts);
 const timeLabel = (e: (typeof older)[number]) =>
   e.data.publishedAt.toLocaleTimeString(lang, {
@@ -44,36 +48,32 @@ const timeLabel = (e: (typeof older)[number]) =>
 
 const t = {
   es: {
-    issue: 'Número del',
+    issue: 'Edición del',
+    dispatches: ['noticia', 'noticias'],
     empty: 'Todavía no ha entrado nada',
-    emptyBody: 'El agente publica cada mañana. Si esto sigue vacío, es que ha fallado la tirada.',
-    sample: 'Número de muestra: estos despachos son material de prueba, no noticias reales.',
+    emptyBody:
+      'El agente publica cada mañana. Si esto sigue vacío, es que ha fallado la publicación de hoy.',
     rest: 'También hoy',
-    archive: 'Números anteriores',
+    archive: 'Noticias anteriores',
   },
   en: {
-    issue: 'Issue of',
+    issue: 'Edition of',
+    dispatches: ['story', 'stories'],
     empty: 'Nothing has come in yet',
-    emptyBody: 'The agent publishes every morning. If this stays empty, the run failed.',
-    sample: 'Sample issue: these dispatches are test material, not real news.',
+    emptyBody: "The agent publishes every morning. If this stays empty, today's run failed.",
     rest: 'Also today',
-    archive: 'Earlier issues',
+    archive: 'Earlier stories',
   },
 }[lang];
 ---
 
 <div class="wrap">
   {
-    isSample && dispatches.length > 0 && (
-      <p class="sample">{t.sample}</p>
-    )
-  }
-
-  {
     lead ? (
       <>
-        <p class="issue">
-          {t.issue} <span class="hl">{issueDate}</span>
+        <p class="issue service">
+          {t.issue} {issueDate} · {issueCount}{' '}
+          {issueCount === 1 ? t.dispatches[0] : t.dispatches[1]}
         </p>
 
         <div class="sheet">
@@ -83,7 +83,7 @@ const t = {
 
           {rail.length > 0 && (
             <section class="rest" aria-labelledby="rest-title">
-              <h2 id="rest-title" class="rest-title">{t.rest}</h2>
+              <h2 id="rest-title" class="wirehead">{t.rest}</h2>
               <div class="stack">
                 {rail.map((entry) => (
                   <Dispatch entry={entry} lang={lang} />
@@ -95,15 +95,17 @@ const t = {
 
         {byDay.size > 0 && (
           <section class="archive" aria-labelledby="archive-title">
-            <h2 id="archive-title" class="archive-title">{t.archive}</h2>
+            <h2 id="archive-title" class="wirehead">{t.archive}</h2>
             {[...byDay.values()].map((entries) => (
               <section class="day">
-                <h3 class="day-date">{dayLabel(entries[0])}</h3>
+                <h3 class="day-date service">{dayLabel(entries[0])}</h3>
                 <ul class="day-list">
                   {entries.map((e) => (
                     <li>
                       <a href={`${base}/${lang}/${e.data.story}/`}>{e.data.title}</a>
-                      <span class="when">{timeLabel(e)}</span>
+                      <time class="when" datetime={e.data.publishedAt.toISOString()}>
+                        {timeLabel(e)}
+                      </time>
                     </li>
                   ))}
                 </ul>
@@ -122,56 +124,33 @@ const t = {
 </div>
 
 <style>
-  .sample {
-    display: inline-block;
-    margin: var(--s3) 0 0;
-    padding: 0.4em 0.7em;
-    border: 2.5px dashed var(--ink);
-    border-radius: 12px 5px 11px 6px;
-    font-size: 0.85rem;
-    font-weight: 600;
-  }
-
   .issue {
-    font-family: var(--mono);
-    font-size: 0.82rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    margin: var(--s4) 0 var(--s3);
+    margin: var(--s4) 0 var(--s2);
+    padding-bottom: var(--s2);
+    border-bottom: 1px solid var(--rule);
   }
 
   .rest {
     margin-top: var(--s5);
   }
 
-  .rest-title {
-    font-size: 1.6rem;
-    margin-bottom: var(--s2);
-  }
-
   .stack {
     display: grid;
-    gap: var(--s3);
   }
 
-  /* El pliegue del papel entre despachos: un trazo dibujado, no un filete. */
   .stack > :global(.dispatch) + :global(.dispatch) {
-    padding-top: var(--s3);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='6' viewBox='0 0 600 6' preserveAspectRatio='none'%3E%3Cpath d='M2 3.4C74 1.6 148 4.2 223 2.8 305 1.3 384 4.6 462 2.6 512 1.3 556 3.8 598 2.4' fill='none' stroke='%23111' stroke-width='1.6' stroke-linecap='round' opacity='.32'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-size: 100% 6px;
-    background-position: top;
+    border-top: 1px solid var(--rule);
   }
 
-  /* El rail es un índice, no una segunda lectura: la entradilla se corta a dos
-     líneas y las etiquetas se quedan para el despacho abierto. */
+  /* El índice es un índice, no una segunda lectura: la entradilla se corta a
+     dos líneas y las etiquetas se quedan para el despacho abierto. */
   .stack :global(.dispatch .summary) {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     margin-bottom: var(--s2);
+    font-size: 0.95rem;
   }
 
   .stack :global(.dispatch .tags) {
@@ -192,20 +171,17 @@ const t = {
     color: var(--ink-soft);
   }
 
-  /* Los números anteriores bajan del rail: el archivo del zine, agrupado por
-     tirada, a ancho completo bajo su propio pliegue. */
+  /* El archivo del cable: tiradas anteriores agrupadas por día, en filas de
+     índice con su hora tabulada. */
   .archive {
     margin-top: var(--s6);
-    padding-top: var(--s4);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='6' viewBox='0 0 600 6' preserveAspectRatio='none'%3E%3Cpath d='M2 3.4C74 1.6 148 4.2 223 2.8 305 1.3 384 4.6 462 2.6 512 1.3 556 3.8 598 2.4' fill='none' stroke='%23111' stroke-width='1.6' stroke-linecap='round' opacity='.32'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-size: 100% 6px;
-    background-position: top;
   }
 
-  .archive-title {
-    font-size: 1.6rem;
-    margin-bottom: var(--s3);
+  .day {
+    /* El archivo crece un día cada día: no puede costar render completo en
+       cada carga. */
+    content-visibility: auto;
+    contain-intrinsic-size: auto 24rem;
   }
 
   .day + .day {
@@ -213,13 +189,7 @@ const t = {
   }
 
   .day-date {
-    font-family: var(--mono);
-    font-weight: 400;
-    font-size: 0.82rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    margin-bottom: var(--s2);
+    margin: var(--s3) 0 var(--s1);
   }
 
   .day-list {
@@ -232,34 +202,47 @@ const t = {
   .day-list li {
     display: flex;
     align-items: baseline;
-    gap: var(--s2);
-    padding-block: var(--s1);
+    justify-content: space-between;
+    gap: var(--s3);
+  }
+
+  .day-list li + li {
+    border-top: 1px solid var(--rule);
   }
 
   .day-list a {
+    font-family: var(--display);
     font-weight: 600;
+    font-size: 0.98rem;
+    line-height: 1.4;
     text-decoration: none;
-    background-image: linear-gradient(transparent 78%, var(--hl-yellow-mark) 78%);
-    background-size: 0% 100%;
-    background-repeat: no-repeat;
-    transition: background-size 240ms cubic-bezier(0.16, 1, 0.3, 1);
+    /* Área táctil ≥44px sin engordar la fila en vista de ratón. */
+    padding-block: 0.75em;
+  }
+
+  .day-list a:visited {
+    color: var(--ink-soft);
   }
 
   .day-list a:hover,
   .day-list a:focus-visible {
-    background-size: 100% 100%;
+    text-decoration: underline;
+    text-decoration-color: var(--wire-red);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
   }
 
   .when {
     font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
     font-size: 0.75rem;
     color: var(--ink-soft);
     white-space: nowrap;
   }
 
-  /* El contrato dice que la pila del día va al lado del despacho de portada, no
-     debajo. Puesta debajo, la mitad derecha de la pantalla se queda vacía y el
-     lector no ve un segundo titular sin hacer scroll. */
+  /* La pila del día va al lado del despacho de cabeza, no debajo: sin esto, la
+     mitad derecha de la pantalla queda vacía y el lector no ve un segundo
+     titular sin hacer scroll. */
   @media (min-width: 64rem) {
     .sheet {
       display: grid;
@@ -268,7 +251,7 @@ const t = {
       align-items: start;
     }
 
-    /* El cartel acompaña al lector mientras recorre el rail: sin esto, la
+    /* La cabeza acompaña al lector mientras recorre el índice: sin esto, la
        columna ancha queda vacía desde el segundo viewport. */
     .lead-col {
       position: sticky;
@@ -277,79 +260,46 @@ const t = {
 
     .rest {
       margin-top: 0;
-      /* El pliegue vertical que separa la portada de la pila. */
       padding-left: var(--s3);
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='600' viewBox='0 0 6 600' preserveAspectRatio='none'%3E%3Cpath d='M3.4 2C1.6 74 4.2 148 2.8 223 1.3 305 4.6 384 2.6 462 1.3 512 3.8 556 2.4 598' fill='none' stroke='%23111' stroke-width='1.6' stroke-linecap='round' opacity='.3'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-size: 6px 100%;
-      background-position: left top;
-    }
-
-    .rest-title {
-      font-size: 1.3rem;
+      border-left: 1px solid var(--rule);
     }
 
     .stack :global(.dispatch h3) {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
     }
 
     .stack :global(.dispatch .summary) {
-      font-size: 0.92rem;
+      font-size: 0.9rem;
     }
   }
 
-  /* La tirada del día sale de la imprenta: el sello del cartel se estampa y el
-     subrayador de la fecha se pasa de izquierda a derecha. Una vez, solo aquí,
-     y solo para quien no pide movimiento reducido. */
+  /* El cable entra: la tirada del día asoma una vez por carga, cabeza primero
+     y el índice detrás, escalonado. Solo para quien no pide movimiento
+     reducido; el resto ve el estado final. */
   @media (prefers-reduced-motion: no-preference) {
-    @keyframes stamp-in {
+    @keyframes wire-in {
       from {
-        transform: rotate(var(--tilt, 0deg)) scale(1.18);
         opacity: 0;
+        transform: translateY(6px);
       }
       to {
-        transform: rotate(var(--tilt, 0deg)) scale(1);
         opacity: 1;
+        transform: none;
       }
     }
 
-    @keyframes hl-draw {
-      from {
-        background-size: 0% 0.62em;
-      }
-      to {
-        background-size: 100% 0.62em;
-      }
+    .issue,
+    .lead-col,
+    .rest {
+      animation: wire-in 320ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
     }
 
-    .lead-col :global(.stamp) {
-      animation: stamp-in 260ms cubic-bezier(0.16, 1, 0.3, 1) 120ms backwards;
+    .lead-col {
+      animation-delay: 60ms;
     }
 
-    .issue .hl {
-      animation: hl-draw 520ms cubic-bezier(0.16, 1, 0.3, 1) 280ms backwards;
-    }
-
-    /* Los despachos del rail y el archivo asoman al entrar en el viewport,
-       ligados al scroll. Donde no hay soporte, quedan visibles sin más. */
-    @supports (animation-timeline: view()) {
-      @keyframes rise {
-        from {
-          opacity: 0;
-          transform: translateY(12px);
-        }
-        to {
-          opacity: 1;
-          transform: none;
-        }
-      }
-
-      .stack :global(.dispatch),
-      .day {
-        animation: rise linear both;
-        animation-timeline: view();
-        animation-range: entry 0% entry 45%;
-      }
+    .rest {
+      animation-delay: 140ms;
     }
   }
 </style>

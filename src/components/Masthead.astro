@@ -1,6 +1,4 @@
 ---
-import Press from './Press.astro';
-
 interface Props {
   lang: 'es' | 'en';
   altHref: string;
@@ -25,34 +23,53 @@ const t = {
     switch: 'Leer en español',
   },
 }[lang];
+
+// Estado "estás aquí" del nav, sin depender de JS.
+const path = Astro.url.pathname.replace(/\/$/, '');
+const homeHref = `${base}/${lang}`;
+const aboutHref = `${base}/${lang}/about`;
+const current = path === homeHref ? 'home' : path === aboutHref ? 'about' : null;
 ---
 
 <header class="masthead">
   <div class="wrap bar">
-    <a class="brand" href={`${base}/${lang}/`}>
-      <Press />
-      <span class="wordmark hl" translate="no">PIIA</span>
+    <a class="brand" href={`${base}/${lang}/`} translate="no" aria-label="PIIA">
+      <!-- El lockup de la marca: π + IA en un solo trazo, con la I como cuerpo
+           del robot redactor y la antena en el rojo del servicio. -->
+      <svg class="mark" viewBox="0 0 120 52" role="img" aria-hidden="true">
+        <g fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3.5 24 H44.5" />
+          <path d="M11.5 24 V48" />
+          <path d="M35.5 24 V48" />
+          <path d="M57 24 V48" />
+          <path d="M73.5 48 L91 24 L108.5 48" />
+        </g>
+        <path d="M80.5 40.5 H101.5" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round" />
+        <g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="47" y="6" width="20" height="14" rx="3.5" />
+          <path d="M57 6 V2.5" />
+        </g>
+        <circle cx="57" cy="2.5" r="2.4" fill="var(--wire-red)" stroke="none" />
+        <circle cx="52.5" cy="13" r="2" fill="currentColor" stroke="none" />
+        <circle cx="61.5" cy="13" r="2" fill="currentColor" stroke="none" />
+      </svg>
     </a>
 
     <p class="tagline">{t.tagline}</p>
 
     <nav aria-label={t.nav}>
-      <a href={`${base}/${lang}/`}>{t.home}</a>
-      <a href={`${base}/${lang}/about/`}>{t.about}</a>
+      <a href={`${base}/${lang}/`} aria-current={current === 'home' ? 'page' : undefined}>
+        {t.home}
+      </a>
+      <a href={`${base}/${lang}/about/`} aria-current={current === 'about' ? 'page' : undefined}>
+        {t.about}
+      </a>
       <a class="lang" href={`${base}${altHref}`} lang={lang === 'es' ? 'en' : 'es'}>{t.switch}</a>
     </nav>
   </div>
 
-  <!-- El filo de la fotocopia: un borde de tinta que nunca sale recto. -->
-  <svg class="rule" viewBox="0 0 1200 9" preserveAspectRatio="none" aria-hidden="true">
-    <path
-      d="M0 5.2 C 90 2.1, 180 7.4, 268 4.3 S 448 6.9, 540 3.6 S 726 7.2, 812 4.1 S 998 6.4, 1090 3.9 L 1200 5"
-      fill="none"
-      stroke="#111"
-      stroke-width="3"
-      stroke-linecap="round"
-    />
-  </svg>
+  <!-- Regla doble de cabecera de servicio: gruesa sobre fina. -->
+  <div class="rules" aria-hidden="true"></div>
 </header>
 
 <style>
@@ -63,23 +80,24 @@ const t = {
   .bar {
     display: flex;
     align-items: baseline;
-    gap: var(--s3);
+    gap: var(--s2) var(--s3);
     flex-wrap: wrap;
     padding-bottom: var(--s2);
   }
 
   .brand {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
+    display: inline-block;
+    color: var(--ink);
     text-decoration: none;
+    /* El acento vive en la marca como pie de imprenta: una base roja. */
+    border-bottom: 4px solid var(--wire-red);
+    padding-bottom: 0.3rem;
   }
 
-  .wordmark {
-    font-family: var(--marker);
-    font-size: clamp(2rem, 5vw, 2.9rem);
-    line-height: 1;
-    padding: 0 0.16em;
+  .mark {
+    display: block;
+    height: 2.3rem;
+    width: auto;
   }
 
   .tagline {
@@ -87,46 +105,54 @@ const t = {
     margin: 0;
     font-size: 0.95rem;
     color: var(--ink-soft);
-    max-width: 34ch;
+    max-width: 40ch;
+    line-height: 1.5;
   }
 
   nav {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     gap: var(--s3);
-    font-size: 0.95rem;
+    font-family: var(--display);
     font-weight: 600;
+    font-size: 0.9rem;
   }
 
   nav a {
     text-decoration: none;
-    padding-bottom: 2px;
     /* Área táctil de ≥44px sin mover el layout: el padding crece hacia fuera
        y el margen negativo lo compensa. */
-    padding-block: 0.65em;
-    margin-block: -0.65em;
+    padding-block: 0.75em;
+    margin-block: -0.75em;
   }
 
-  /* Hover de navegación: siempre el marcador amarillo del zine. El teal queda
-     para el halo de foco y el rosa para la procedencia. */
   nav a:hover {
-    background-image: linear-gradient(transparent 72%, var(--hl-yellow-mark) 72%);
+    text-decoration: underline;
+    text-decoration-color: var(--wire-red);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 5px;
+  }
+
+  nav a[aria-current='page'] {
+    text-decoration: underline;
+    text-decoration-color: var(--wire-red);
+    text-decoration-thickness: 3px;
+    text-underline-offset: 5px;
   }
 
   .lang {
+    font-family: var(--serif);
     font-style: italic;
+    font-weight: 400;
     color: var(--ink-soft);
   }
 
-  .rule {
-    display: block;
-    width: 100%;
-    height: 9px;
+  .rules {
+    border-top: 3px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    height: 6px;
   }
 
-  /* En móvil la cabecera es una pieza rotulada: marca con su lema debajo, y el
-     nav como línea de servicio al final. La tagline nunca queda huérfana entre
-     el nav y el contenido. */
   @media (max-width: 40rem) {
     .bar {
       row-gap: var(--s1);
@@ -142,10 +168,5 @@ const t = {
       order: 3;
       flex-basis: 100%;
     }
-  }
-
-  /* Las gotas de tinta del rodillo caen al tocar la marca. */
-  .brand:hover :global(.drop) {
-    transform: translateY(3px);
   }
 </style>

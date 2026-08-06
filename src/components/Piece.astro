@@ -13,7 +13,7 @@ const { title, summary, lang, story, publishedAt, sourceUrl, sourceName, priorit
   entry.data;
 
 // Anterior y siguiente dentro del mismo idioma, por fecha: el lector diario
-// puede hojear el fanzine sin volver a la portada.
+// puede hojear el cable sin volver a la portada.
 const siblings = (await getCollection('news', ({ data }) => data.lang === lang)).sort(
   (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime()
 );
@@ -23,22 +23,24 @@ const olderPiece = idx >= 0 && idx < siblings.length - 1 ? siblings[idx + 1] : n
 
 const t = {
   es: {
+    origin: 'Procedencia',
     source: 'Fuente original',
     written: 'Redactado por',
     disclosure:
       'Este texto lo ha escrito una máquina a partir de la fuente enlazada. Nadie lo ha revisado antes de publicarlo.',
     back: 'Volver a la portada',
-    pager: 'Otros despachos',
+    pager: 'Otras noticias',
     newer: 'Más reciente',
     older: 'Anterior',
   },
   en: {
+    origin: 'Provenance',
     source: 'Original source',
     written: 'Written by',
     disclosure:
       'This text was written by a machine from the linked source. Nobody reviewed it before publishing.',
     back: 'Back to the front page',
-    pager: 'Other dispatches',
+    pager: 'Other stories',
     newer: 'Newer',
     older: 'Older',
   },
@@ -72,11 +74,22 @@ const date = publishedAt.toLocaleDateString(lang, {
     </header>
 
     <!-- La procedencia va antes del texto, no escondida al final. -->
-    <aside class="origin">
+    <aside class="origin" aria-label={t.origin}>
+      <p class="origin-head">{t.origin}</p>
       <p class="disclosure">{t.disclosure}</p>
       <p class="links">
-        <a class="src hl hl-pink" href={sourceUrl} rel="noopener nofollow">{t.source}: {sourceName}</a>
-        <span class="by">{t.written} <code translate="no">{generatedBy}</code></span>
+        <a class="src" href={sourceUrl} rel="noopener">{t.source}: {sourceName}</a>
+        <span class="by">
+          {t.written}{' '}
+          <code translate="no">
+            {generatedBy.split('/').map((part: string, i: number) => (
+              <>
+                {i > 0 && <>/<wbr /></>}
+                {part}
+              </>
+            ))}
+          </code>
+        </span>
       </p>
     </aside>
 
@@ -84,20 +97,20 @@ const date = publishedAt.toLocaleDateString(lang, {
       <Content />
     </div>
 
-    <a class="back" href={`${base}/${lang}/`}>{t.back}</a>
+    <a class="back" href={`${base}/${lang}/`}>← {t.back}</a>
 
     {
       (newer || olderPiece) && (
         <nav class="pager" aria-label={t.pager}>
           {newer && (
             <a class="page newer" href={`${base}/${lang}/${newer.data.story}/`}>
-              <span class="page-label">← {t.newer}</span>
+              <span class="page-label service">← {t.newer}</span>
               <span class="page-title">{newer.data.title}</span>
             </a>
           )}
           {olderPiece && (
             <a class="page older" href={`${base}/${lang}/${olderPiece.data.story}/`}>
-              <span class="page-label">{t.older} →</span>
+              <span class="page-label service">{t.older} →</span>
               <span class="page-title">{olderPiece.data.title}</span>
             </a>
           )}
@@ -160,47 +173,51 @@ const date = publishedAt.toLocaleDateString(lang, {
     gap: var(--s2);
     margin-bottom: var(--s3);
     font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
     font-size: 0.78rem;
     color: var(--ink-soft);
   }
 
   h1 {
-    font-size: clamp(2.2rem, 6vw, 3.8rem);
-    max-width: 18ch;
-    text-wrap: balance;
+    font-size: clamp(2rem, 4.5vw, 3rem);
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    max-width: 24ch;
     margin-bottom: var(--s3);
   }
 
   .lede {
     font-size: 1.2rem;
+    line-height: 1.55;
     max-width: 52ch;
     color: var(--ink-soft);
     margin: 0 0 var(--s4);
   }
 
-  /* El recuadro de procedencia: papel pegado encima con cinta, ligeramente
-     torcido. El marco es trazo dibujado, no borde. */
+  /* El recuadro de procedencia: la ficha de rutado del despacho, con la regla
+     gruesa del servicio arriba. */
   .origin {
-    position: relative;
     max-width: var(--measure);
     margin-bottom: var(--s4);
     padding: var(--s3);
     background: var(--paper-deep);
+    border-top: 3px solid var(--ink);
   }
 
-  .origin::before {
-    content: '';
-    position: absolute;
-    inset: -5px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='160' viewBox='0 0 400 160' preserveAspectRatio='none'%3E%3Cg fill='none' stroke='%23111' stroke-linecap='round' stroke-linejoin='round' vector-effect='non-scaling-stroke'%3E%3Cpath d='M5 11C70 6.4 190 5.2 330 7.4c48 .8 62 2 64.6 4.8 2.4 2.6 2.8 40 1.6 130-.4 12-2 17-5.6 18-6 1.6-120 2.4-250 1.8-72-.4-114-1.6-116.6-3.4-2.6-1.8-3.4-38-2.6-125C15 20 16 12.6 20 11z' stroke-width='2.6'/%3E%3C/g%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    pointer-events: none;
+  .origin-head {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--wire-red);
+    margin: 0 0 var(--s1);
   }
 
   .disclosure {
     margin: 0 0 var(--s2);
-    font-weight: 600;
+    font-size: 0.95rem;
   }
 
   .links {
@@ -211,11 +228,16 @@ const date = publishedAt.toLocaleDateString(lang, {
     font-size: 0.9rem;
   }
 
-  /* La banda rosa sola se queda en 2.36:1 y no basta como señal de enlace, así
-     que el subrayado de tinta se mantiene debajo. */
   .src {
+    font-family: var(--display);
     font-weight: 600;
     text-underline-offset: 4px;
+    /* Área táctil ≥44px; como flex item, el padding también estira la fila. */
+    padding-block: 0.85em;
+  }
+
+  .src:hover {
+    text-decoration-color: var(--wire-red);
     text-decoration-thickness: 2px;
   }
 
@@ -235,32 +257,27 @@ const date = publishedAt.toLocaleDateString(lang, {
     overflow-wrap: break-word;
   }
 
+  /* Cada sección abre con su regla de cable: hairline hasta el margen. */
   .prose :global(h2) {
-    font-size: 1.75rem;
+    font-size: 1.4rem;
     margin-top: var(--s5);
     margin-bottom: var(--s2);
-    /* Cada sección lleva su pasada de subrayador, como el lector que marca el
-       apartado que le importa. */
-    width: fit-content;
-    padding: 0 0.16em;
-    margin-left: -0.16em;
-    background-image: var(--stroke-yellow);
-    background-repeat: no-repeat;
-    background-size: 100% 0.45em;
-    background-position: 0 94%;
+    padding-top: var(--s2);
+    border-top: 1px solid var(--rule);
   }
 
   .prose :global(p) {
     margin-block: 0 var(--s3);
   }
 
-  .prose :global(strong) {
-    background-image: linear-gradient(transparent 58%, var(--hl-yellow) 58%);
-  }
-
   .prose :global(a) {
     font-weight: 600;
     text-underline-offset: 3px;
+  }
+
+  .prose :global(a:hover) {
+    text-decoration-color: var(--wire-red);
+    text-decoration-thickness: 2px;
   }
 
   .prose :global(ol),
@@ -273,39 +290,33 @@ const date = publishedAt.toLocaleDateString(lang, {
     margin-bottom: var(--s1);
   }
 
-  /* El bloque de código es el objeto central de este zine: la fotocopia de la
-     pantalla, pegada sobre el papel. Se mantiene oscuro a propósito, porque es
-     lo que el lector va a copiar y pegar en su terminal. */
+  /* El bloque de código es el objeto central del servicio: lo que el lector
+     va a copiar y pegar en su terminal. Se mantiene oscuro a propósito. */
   .prose :global(pre) {
     margin-block: var(--s3) var(--s4);
     padding: var(--s3);
     border: 0;
-    border-radius: 3px;
+    border-radius: 4px;
     /* Shiki escribe el fondo en un atributo `style` sobre el propio <pre>, y un
-       estilo en línea solo se puede sobrescribir con !important. Sin esto el
-       bloque se pinta con el azul de GitHub en vez de la tinta de este mundo. */
-    background-color: #16150f !important;
+       estilo en línea solo se puede sobrescribir con !important. */
+    background-color: #14171a !important;
     overflow-x: auto;
     font-size: 0.9rem;
     line-height: 1.6;
     /* Señal de contenido desplazable: una sombra clara fija en el filo derecho
-       (visible sobre el fondo oscuro) y una capa del color del bloque que viaja
-       con el contenido y la tapa al llegar al final. La versión anterior era
-       negro sobre negro: invisible. */
+       y una capa del color del bloque que viaja con el contenido y la tapa al
+       llegar al final. */
     background-image:
-      linear-gradient(to left, #16150f 30%, rgba(22, 21, 15, 0)),
-      linear-gradient(to left, rgba(255, 248, 236, 0.35), rgba(255, 248, 236, 0) 85%);
+      linear-gradient(to left, #14171a 30%, rgba(20, 23, 26, 0)),
+      linear-gradient(to left, rgba(252, 252, 250, 0.35), rgba(252, 252, 250, 0) 85%);
     background-repeat: no-repeat, no-repeat;
     background-position: right center, right center;
     background-size: 1.75rem 100%, 2rem 100%;
     background-attachment: local, scroll;
-    outline: 3px solid var(--ink);
-    outline-offset: 0;
   }
 
   .prose :global(pre:focus-visible) {
-    outline: 3px solid var(--ink);
-    box-shadow: 0 0 0 6px var(--hl-teal);
+    outline-offset: 3px;
   }
 
   .prose :global(pre code) {
@@ -326,33 +337,37 @@ const date = publishedAt.toLocaleDateString(lang, {
     font-size: 0.88em;
     background: var(--paper-deep);
     padding: 0.15em 0.35em;
-    border-radius: 5px 3px 6px 3px;
-    border: 1px solid rgba(17, 17, 17, 0.2);
+    border-radius: 3px;
+    border: 1px solid var(--rule);
   }
 
   .back {
     display: inline-block;
     margin-top: var(--s5);
-    font-family: var(--marker);
-    font-size: 1.2rem;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 0.95rem;
     text-decoration: none;
+    /* Área táctil ≥44px. */
+    padding-block: 0.75em;
+    margin-block: calc(var(--s5) - 0.75em) -0.75em;
   }
 
   .back:hover {
-    background-image: linear-gradient(transparent 78%, var(--hl-yellow-mark) 78%);
+    text-decoration: underline;
+    text-decoration-color: var(--wire-red);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
   }
 
-  /* Hojear el fanzine: despacho anterior y siguiente bajo su pliegue. */
+  /* Hojear el cable: despacho anterior y siguiente bajo su regla. */
   .pager {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--s3);
     margin-top: var(--s4);
     padding-top: var(--s3);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='6' viewBox='0 0 600 6' preserveAspectRatio='none'%3E%3Cpath d='M2 3.4C74 1.6 148 4.2 223 2.8 305 1.3 384 4.6 462 2.6 512 1.3 556 3.8 598 2.4' fill='none' stroke='%23111' stroke-width='1.6' stroke-linecap='round' opacity='.32'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-size: 100% 6px;
-    background-position: top;
+    border-top: 1px solid var(--rule);
     max-width: var(--measure);
   }
 
@@ -361,6 +376,8 @@ const date = publishedAt.toLocaleDateString(lang, {
     gap: var(--s1);
     text-decoration: none;
     align-content: start;
+    /* Área táctil ≥44px. */
+    padding-block: 0.5em;
   }
 
   .page.older {
@@ -369,35 +386,26 @@ const date = publishedAt.toLocaleDateString(lang, {
     justify-items: end;
   }
 
-  .page-label {
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-  }
-
   .page-title {
-    font-family: var(--marker);
-    font-size: 1.05rem;
-    line-height: 1.2;
-    background-image: linear-gradient(transparent 82%, var(--hl-yellow-mark) 82%);
-    background-size: 0% 100%;
-    background-repeat: no-repeat;
-    transition: background-size 240ms cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.35;
   }
 
-  .page.older .page-title {
-    background-position: right;
+  .page:visited .page-title {
+    color: var(--ink-soft);
   }
 
   .page:hover .page-title,
   .page:focus-visible .page-title {
-    background-size: 100% 100%;
+    text-decoration: underline;
+    text-decoration-color: var(--wire-red);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
   }
 
-  /* El botón de copiar: una pegatina sobre la fotocopia. Lo monta el script;
-     de ahí el :global. */
+  /* El botón de copiar: pieza de servicio sobre el bloque, con área ≥44px. */
   .prose :global(.code-wrap) {
     position: relative;
     margin-block: var(--s3) var(--s4);
@@ -409,31 +417,37 @@ const date = publishedAt.toLocaleDateString(lang, {
 
   .prose :global(.copy) {
     position: absolute;
-    top: -0.85em;
-    right: 0.7em;
-    font-family: var(--marker);
-    font-size: 0.8rem;
+    top: 0.55rem;
+    right: 0.55rem;
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
     line-height: 1;
-    padding: 0.35em 0.65em 0.28em;
+    padding: 0.5em 0.9em;
     color: var(--ink);
     background: var(--paper);
-    border: 2px solid var(--ink);
-    border-radius: 9px 4px 10px 5px;
+    border: 1px solid var(--ink);
+    border-radius: 3px;
     cursor: pointer;
-    transform: rotate(-1deg);
   }
 
   .prose :global(.copy:hover) {
-    background: var(--hl-yellow);
+    background: var(--paper-deep);
   }
 
   .prose :global(.copy.done) {
-    background: var(--hl-teal);
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
   }
 
   /* El recorte de procedencia se pega al margen derecho en pantallas anchas:
-     la marginalia del zine, no un vacío. En columna única vuelve a su sitio,
-     antes del texto. */
+     la marginalia del pliego. En columna única vuelve a su sitio, antes del
+     texto. */
   @media (min-width: 72rem) {
     .piece {
       display: grid;
@@ -453,7 +467,6 @@ const date = publishedAt.toLocaleDateString(lang, {
       position: sticky;
       top: var(--s4);
       margin-bottom: 0;
-      transform: rotate(0.9deg);
     }
 
     .prose {
@@ -469,40 +482,6 @@ const date = publishedAt.toLocaleDateString(lang, {
     .pager {
       grid-column: 1;
       grid-row: 4;
-    }
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    @keyframes copy-pop {
-      from {
-        transform: rotate(-1deg) scale(1.15);
-      }
-      to {
-        transform: rotate(-1deg) scale(1);
-      }
-    }
-
-    .prose :global(.copy.done) {
-      animation: copy-pop 220ms cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    /* El subrayador de cada sección se pasa al entrar en el viewport. Donde no
-       hay soporte de scroll-driven animations, queda la marca estática. */
-    @supports (animation-timeline: view()) {
-      @keyframes h2-draw {
-        from {
-          background-size: 0% 0.45em;
-        }
-        to {
-          background-size: 100% 0.45em;
-        }
-      }
-
-      .prose :global(h2) {
-        animation: h2-draw linear both;
-        animation-timeline: view();
-        animation-range: entry 0% entry 40%;
-      }
     }
   }
 </style>

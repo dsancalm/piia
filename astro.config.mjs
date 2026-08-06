@@ -32,8 +32,8 @@ export default defineConfig({
   base: '/piia',
   markdown: {
     shikiConfig: {
-      // Tema oscuro para los bloques de código, que en este zine son la fotocopia
-      // de la pantalla pegada sobre el papel.
+      // Tema oscuro para los bloques de código: es lo que el lector copia a su
+      // terminal, y se mantiene oscuro dentro del mundo claro del servicio.
       theme: 'github-dark-default',
       wrap: false,
     },

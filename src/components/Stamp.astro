@@ -1,6 +1,6 @@
 ---
-// Sello de prioridad. El amarillo marca lo vivo, el teal lo que ya está asentado.
-// El texto nunca depende del color para leerse: la palabra ya lo dice.
+// Etiqueta de prioridad del despacho: la escalera del teletipo. La palabra
+// lleva el significado; el rojo solo refuerza la urgencia.
 interface Props {
   priority: 'flash' | 'urgent' | 'routine';
   lang: 'es' | 'en';
@@ -12,52 +12,8 @@ const label = {
   es: { flash: 'Última hora', urgent: 'Importante', routine: 'Del día' },
   en: { flash: 'Breaking', urgent: 'Important', routine: 'Today' },
 }[lang][priority];
+
+const kind = { flash: 'tag-solid', urgent: 'tag-outline', routine: 'tag-plain' }[priority];
 ---
 
-<span class:list={['stamp', priority]}>{label}</span>
-
-<style>
-  .stamp {
-    position: relative;
-    display: inline-block;
-    font-family: var(--marker);
-    font-size: 0.85rem;
-    line-height: 1;
-    padding: 0.4em 0.7em 0.26em;
-    white-space: nowrap;
-    /* La inclinación vive en una variable para que las animaciones de quien
-       use el sello puedan componer transform sin perderla. */
-    transform: rotate(var(--tilt, 0deg));
-    transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  /* El marco es un trazo dibujado detrás del texto, no un borde. Se pinta como
-     imagen de fondo estirada, no con border-image: este último recorta el SVG en
-     nueve piezas y en una caja pequeña las piezas se solapan encima del texto. */
-  .stamp::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-color: var(--fill, transparent);
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='56' viewBox='0 0 160 56' preserveAspectRatio='none'%3E%3Cpath d='M4.5 9.2C30 5.4 72 4.6 121 5.6c22 .5 32 1.6 34.2 3.8 2.2 2.3 2.4 14.4 1.4 36.8-.4 6.4-1.4 8.8-3.6 9.6-4.2 1.4-46 2-96 1.4-32-.4-51-1.2-53.2-2.6C1.6 53.2 1 42 1.6 24.4 1.9 14 2.6 10.4 4.5 9.2z' fill='none' stroke='%23111' stroke-width='2.6' stroke-linejoin='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    z-index: -1;
-  }
-
-  .flash {
-    --fill: var(--hl-yellow);
-    --tilt: -1.6deg;
-  }
-
-  .urgent {
-    --fill: var(--hl-pink);
-    --tilt: 1.1deg;
-  }
-
-  .routine {
-    --fill: transparent;
-    color: var(--ink-soft);
-    --tilt: -0.5deg;
-  }
-</style>
+<span class:list={['tag', kind]}>{label}</span>

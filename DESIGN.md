@@ -7,136 +7,184 @@ archivo discrepan, manda el código.
 
 ## Mundo
 
-Un fanzine técnico fotocopiado. Papel crema con hebra de pulpa, tinta negra de
-rotulador y tres subrayadores planos pasados a mano. Rechaza explícitamente la
-retícula de tarjetas oscuras con etiqueta monoespaciada que envía cualquier blog
-de IA.
+El servicio de cable de una agencia de noticias automática. Papel de servicio
+casi blanco, tinta de teletipo y un solo acento: el rojo de prioridad. Despachos
+con etiqueta, hora y procedencia en jerarquía de sala de redacción. Rechaza la
+retícula de tarjetas oscuras con neón de los blogs de IA y el papel craft con
+letra dibujada del mundo anterior (fanzine), que este mundo reemplaza por
+completo.
 
-Semilla de dirección: `fa142f91`. El dado asignó "teletipo de agencia"; el
-usuario eligió el retador de catálogo `hand-drawn-zine-explainer`, y una elección
-del usuario manda sobre la tirada.
+Semilla de dirección: `012bfcd3`. Forma: teletipo de agencia, candidato 4 de la
+lista ordenada del usuario.
+
+Voz: el usuario pidió a mitad de build copy humano y sin jerga de agencia. Lo
+que lee el visitante dice "noticia" (no "despacho"), "Edición del", "Noticias
+anteriores"; el cierre "— Fin del despacho —" se eliminó. La jerga del cable
+(`dispatch`, `service`, `wirehead`) vive solo en clases y comentarios del
+código. La voz humana manda sobre el rótulo de rutado.
 
 ## Color
 
-Estrategia: paleta completa con tres roles señalizados. Ninguno decora.
+Estrategia: monocromo de tinta sobre papel con un único acento. El rojo señala
+prioridad o actividad; nunca decora.
 
 | Token | Valor | Papel |
 |---|---|---|
-| `--paper` | `#FFF8EC` | Suelo de todo el sitio |
-| `--paper-deep` | `#F5ECD8` | Papel pegado encima (recuadro de procedencia, código en línea) |
-| `--ink` | `#111111` | Texto y trazo. 17.3:1 sobre papel |
-| `--ink-soft` | `#4A4438` | Texto secundario, tintado desde el papel y no gris. 8.87:1 |
-| `--hl-yellow` | `#FFE34D` | Relleno del sello de última hora. Va contra tinta: 14.7:1 |
-| `--hl-yellow-mark` | `#FFD814` | Trazo de subrayador sobre papel. El `#FFE34D` se queda en 1.32:1 y no marca nada |
-| `--hl-pink` | `#FF6BAE` | Procedencia: de dónde salió esto |
-| `--hl-teal` | `#00C7B7` | Lo verificable y el halo exterior de foco |
+| `--paper` | `#FCFCFA` | Suelo de todo el sitio y `theme-color` |
+| `--paper-deep` | `#F4F3EE` | Ficha pegada encima: recuadro de procedencia, código en línea, hover del botón de copiar |
+| `--ink` | `#15181B` | Texto, titulares y reglas dobles. 17.35:1 sobre papel |
+| `--ink-soft` | `#4A4F55` | Texto secundario, metadatos, `:visited`. 8.05:1 sobre papel; 7.44:1 sobre `--paper-deep` |
+| `--wire-red` | `#B3001B` | El acento del cable. 6.97:1 sobre papel; blanco sobre rojo 7.16:1 |
+| `--rule` | `rgba(21, 24, 27, 0.18)` | Hairlines: separadores de lista, filo de secciones, borde del código en línea |
+| `#14171A` | (literal) | Fondo del bloque de código, la única superficie oscura del mundo |
 
-Claro, no oscuro. Se decide desde la escena de uso: lectura de texto técnico
-largo durante la jornada laboral, en escritorio y en ratos sueltos en el móvil.
+Dónde aparece el rojo, y solo ahí: base de 4px bajo la marca, antena del robot,
+sello macizo de "Última hora" y contorno de "Importante", cabeza del recuadro de
+procedencia, subrayados de hover/`aria-current`, contorno de foco, `::selection`
+y tap-highlight. Ningún rojo es relleno decorativo: cada uno marca prioridad,
+posición actual o acción disponible.
+
+Claro, no oscuro (`color-scheme: light`): lectura de texto largo durante la
+jornada. La excepción oscura es el bloque de código, que es la pantalla del
+lector fotografiada, no papel.
 
 ## Tipografía
 
-- Display: **Permanent Marker** (`--marker`), autoalojada. Titulares, sellos,
-  cifra del colofón. Nunca para texto corrido.
-- Cuerpo: **Figtree Variable** (`--sans`). Geométrica, legible en párrafo largo.
-- Código: **JetBrains Mono Variable** (`--mono`). Solo para código, datos y
-  medida. Nunca como disfraz de "técnico": las etiquetas van en sans.
+- Titulares y rótulos: **Libre Franklin Variable** (`--display`). Pesos 600
+  (nav, enlaces de pieza), 700 (titulares base), 800 (cabeza de portada, rótulos
+  en caja alta). Precargada.
+- Lectura larga: **Literata Variable** (`--serif`). Cuerpo a `1.0625rem/1.7`.
+  Su itálica marca el conmutador de idioma. Precargada.
+- **JetBrains Mono Variable** (`--mono`): solo hora, dato y código, con
+  `tabular-nums` en las horas. Nunca como disfraz de "técnico": los rótulos van
+  en la sans.
 
-Medida de línea `--measure: 68ch`. Entradilla 52ch, entradilla de portada 46ch.
-Titular de portada `clamp(2.4rem, 6.5vw, 4.4rem)`.
+Escala: cabeza de portada `clamp(2.1rem, 4.6vw, 3.4rem)` peso 800, tracking
+-0.025em; `h1` de artículo `clamp(2rem, 4.5vw, 3rem)` a máx. 24ch; titular de
+índice 1.25rem (1.1rem en dos columnas); `h2` de prosa 1.4rem; entradilla
+1.2rem/1.55 a máx. 52ch.
+
+Roles compactos en caja alta: etiqueta de prioridad `.tag` (0.72rem, 800,
+tracking 0.08em), línea de servicio `.service` (0.78rem, 600, tracking 0.1em),
+cabecera de sección `.wirehead` (0.82rem, 800, con regla hasta el margen).
+
+Medida `--measure: 66ch`. Entradilla 52ch, tagline 40ch, colofón 58ch. Los
+titulares llevan `text-wrap: balance` y `overflow-wrap: break-word`: los escribe
+una máquina y un token sin espacios no puede reventar el ancho en móvil.
 
 ## Materia
 
-Es lo que separa este mundo de un blog con fondo crema. Nada de esto se hace con
-bordes CSS:
+Tinta plana sobre papel liso: sin sombras, sin texturas, sin trazos dibujados.
+La materia del mundo son las reglas tipográficas y una sola pieza de pantalla:
 
-- **Marcos**: SVG de trazo irregular con grosor variable y esquinas que se pasan,
-  pintados como `background-image` estirado. No `border-image`: recorta el SVG en
-  nueve piezas y en cajas pequeñas las piezas se montan sobre el texto.
-- **Subrayadores** (`.hl`, `.hl-pink`, `.hl-teal`): trazo SVG con el borde
-  superior desigual que sobresale por los extremos.
-- **Reglas de cabecera y pie**: trazo SVG ondulado, nunca `border-bottom`.
-- **Pliegues** entre despachos: trazo SVG, horizontal apilado y vertical en dos
-  columnas.
-- **Fibra del papel**: mosaico SVG de trazos cortos en tres direcciones al 3,2%
-  de opacidad, sobre `body`. No es una trama de puntos ni `feTurbulence`.
+- **Reglas dobles**: cabecera gruesa sobre fina (3px/1px), pie espejo fina sobre
+  gruesa (1px/3px). Son bordes CSS de tinta plena, no SVG.
+- **Hairlines** `--rule` para todo lo demás: separadores del índice y del
+  archivo, filo superior de cada `h2` de prosa, cola del `.wirehead`.
+- **Escalera del teletipo** (`.tag`): roja maciza con texto blanco (Última
+  hora), contorno rojo de 1.5px inset (Importante), tinta suave con contorno
+  hairline (Del día). La palabra lleva el significado; el color lo refuerza.
+- **Recuadro de procedencia**: `--paper-deep` con regla gruesa de tinta arriba
+  (3px) y cabeza en rojo caja alta. Es la ficha de rutado del despacho.
+- **Marca**: lockup SVG π + robot + A en trazo `currentColor`; la I es el cuerpo
+  del robot redactor (dos ojos de tinta) y su antena remata en punto rojo.
+  Pedido explícitamente por el usuario. Bajo el enlace, la base roja de 4px: el
+  acento como pie de imprenta. Favicon a juego: π blanco sobre placa roja
+  (`#B3001B`, radio 6).
+- **Bloque de código**: fondo `#14171A` forzado con `!important` porque Shiki
+  (tema `github-dark-default`) escribe el suyo en el `style` en línea del `pre`
+  y solo eso lo sobrescribe. Oscuro a propósito dentro de un mundo claro: es lo
+  que el lector copia a su terminal. Señal de desplazamiento en dos capas de
+  fondo: sombra clara fija en el filo derecho y capa del color del bloque con
+  `background-attachment: local` que la tapa al llegar al final. Los bloques
+  `text` (prompts en lenguaje natural) envuelven con `pre-wrap`; el código real
+  conserva el scroll para no romper líneas copiables.
+- **Radios solo en lo que no es papel**: 4px el bloque de código, 3px el código
+  en línea y el botón de copiar, 6 el favicon. El papel no tiene esquinas
+  redondeadas.
+- **Botón "Copiar"**: papel con borde de tinta de 1px, rótulo en caja alta;
+  montado por el único script del sitio. "Copiado" invierte a tinta sobre papel.
 
 ## Composición
 
-- **Portada**: cabecera rotulada, fecha del número, despacho de portada a tamaño
-  de cartel. A partir de `64rem` la pila del día sube a una segunda columna
-  (`1.85fr / 1fr`) separada por un pliegue vertical, y el cartel es `sticky`
-  para acompañar el scroll: la columna ancha nunca queda vacía.
-- **El número solo contiene su día** (clave de día en `Europe/Madrid`). Los
-  despachos de tiradas anteriores bajan a "Números anteriores": lista compacta a
-  ancho completo bajo su pliegue, agrupada por fecha. Así la fecha del número
-  nunca miente y el rail no crece sin límite.
-- **Rail**: es un índice, no una segunda lectura. Entradilla cortada a dos
-  líneas (`line-clamp`), sin etiquetas; titulares en `h3` dentro de la sección
-  "También hoy" (`h2`). El titular del cartel es el `h1` de la portada.
-- **Despacho**: sello de prioridad y hora, titular, entradilla, y el recuadro de
-  procedencia **antes** del texto. La atribución no es una nota al pie. A partir
-  de `72rem` el recuadro se pega al margen derecho como marginalia (`sticky`,
-  rotado 0.9deg): el margen del pliego lleva contenido, no vacío.
-- **Bloque de código**: fondo `#16150f` forzado con `!important`, porque Shiki
-  escribe el suyo en un `style` en línea y solo eso lo sobrescribe. Lleva
-  `tabindex="0"` y `role="region"` (etiquetado por idioma) para poder recorrerse
-  con teclado. La señal de desplazamiento son dos capas: una sombra clara fija
-  en el filo derecho y una capa del color del bloque, `background-attachment:
-  local`, que la tapa al llegar al final (la sombra negra anterior era invisible
-  sobre el fondo negro). Los bloques `text` (prompts en lenguaje natural)
-  envuelven con `pre-wrap`; el código real conserva el scroll para no romper
-  líneas copiables. Botón "Copiar" montado por el único script del sitio, como
-  pegatina en marker; al copiar estampa "Copiado" en teal.
-- **Artículo**: pager "Más reciente / Anterior" bajo un pliegue al pie, en el
-  mismo idioma, para hojear el fanzine sin volver a portada.
-- **404**: página propia en el mundo (sello "Retirado" rosa), porque el producto
-  garantiza retiradas y un enlace muerto no puede caer en el 404 de GitHub.
+- Ritmo de espaciado `--s1..--s6` (0.5 / 0.875 / 1.5 / 2.5 / 4 / 6.5 rem).
+  Contenedor `.wrap`: `min(100% - 2.5rem, 74rem)`.
+- **Masthead**: marca, tagline y nav en una barra alineada por baseline; bajo
+  40rem el tagline y el nav bajan a filas completas. El nav marca posición con
+  subrayado rojo (`aria-current`).
+- **Portada**: línea de servicio "Edición del [fecha] · N noticia(s)", cabeza
+  del día como `h1` a peso de portada, y a partir de `64rem` la pila "También
+  hoy" sube a segunda columna (`1.85fr / 1fr`, filo izquierdo hairline) con la
+  cabeza `sticky`: la columna ancha nunca queda vacía.
+- **La edición solo contiene su día** (clave de día en `Europe/Madrid`). Lo
+  anterior baja a "Noticias anteriores": filas de título + hora tabulada
+  agrupadas por fecha, con `content-visibility: auto` porque el archivo crece un
+  día cada día.
+- **El índice es un índice**: entradilla cortada a dos líneas (`line-clamp`),
+  sin etiquetas; titulares en `h3` bajo el `h2` de sección.
+- **Artículo**: sello y hora en mono, titular, entradilla, y el recuadro de
+  procedencia **antes** del texto con la declaración de autoría de máquina: la
+  atribución no es una nota al pie. A partir de `72rem` el recuadro se pega al
+  margen derecho como marginalia `sticky`. Prosa a 66ch; cada `h2` abre con su
+  hairline. Al pie, pager "Más reciente / Anterior" en dos columnas y "Volver a
+  la portada".
+- **About y 404 no llevan línea de servicio**: adaptación intencional. El
+  usuario pidió copy humano sin jerga de agencia, y en una página que habla en
+  voz humana el rótulo de rutado sobra. La voz manda sobre el sistema.
+- **404**: única para todo el sitio (español primero, inglés debajo), con sello
+  rojo "Retirada": el producto garantiza retiradas y un enlace muerto no puede
+  caer en el 404 de GitHub.
+- Estado vacío de portada: `h1` + explicación a 46ch de quién publica y qué
+  significa el vacío.
 
 ## Movimiento
 
-Tesis: el número sale de la imprenta. Todo lo autorado se activa solo bajo
-`prefers-reduced-motion: no-preference`; sin soporte o con movimiento reducido
-queda el estado final visible.
+Tesis: el cable entra. Todo lo autorado se activa solo bajo
+`prefers-reduced-motion: no-preference`; con movimiento reducido queda el estado
+final (el neutralizador global además apaga explícitamente los pseudo-elementos
+`::view-transition-*`, que no alcanza de otro modo).
 
-- **Focal (portada, una vez por carga)**: el sello del cartel se estampa
-  (`scale 1.18→1` componiendo con su inclinación `--tilt`, 260ms) y el
-  subrayador de la fecha se pasa de izquierda a derecha (520ms, delay 280ms).
-- **Continuidad**: view transitions entre documentos (`@view-transition`,
-  MPA). El titular clicado viaja de la portada a su posición de artículo
-  (`view-transition-name: d-{story}`); el resto funde como papel. Los
-  pseudo-elementos `::view-transition-*` se apagan explícitamente bajo
-  movimiento reducido, porque el neutralizador global no los alcanza.
-- **Scroll**: despachos del rail y días del archivo asoman al entrar en
-  viewport, y el subrayador de cada `h2` de artículo se dibuja, con
-  `animation-timeline: view()` tras `@supports`; fuera de Chromium degrada a
-  estático.
-- **Feedback**: barrido amarillo del titular en hover (320ms,
-  `cubic-bezier(0.16, 1, 0.3, 1)`); el sello se recoloca un grado al pasar por
-  el despacho; las gotas de tinta del rodillo caen escalonadas al tocar la
-  marca; "Copiado" asienta con un `scale` corto.
+- **Llegada (portada, una vez por carga)**: `wire-in` — fundido con 6px de
+  subida, 320ms, `cubic-bezier(0.16, 1, 0.3, 1)` — escalonado: línea de
+  servicio, cabeza (+60ms), pila del día (+140ms).
+- **Continuidad**: view transitions MPA (`@view-transition`, raíz a 240ms). El
+  titular clicado viaja de la portada a su artículo
+  (`view-transition-name: d-{story}`); el resto funde.
+- **Feedback**: subrayado rojo en hover/foco (grosor 2–3px, offset 4–5px);
+  "Copiado" mantiene el estado invertido 1.8s. Nada más se mueve: el papel
+  impreso no anima.
 
 ## Accesibilidad
 
-- Foco: contorno de tinta de 3px más halo teal exterior. El teal solo sobre papel
-  se queda en 1.94:1 y no llega al 3:1 exigido a un indicador no textual.
-- Los enlaces de fuente conservan subrayado de tinta además de la banda rosa: la
-  banda sola da 2.36:1 y no basta como señal de enlace.
-- Los sellos de prioridad dicen la palabra ("Última hora", "Importante", "Del
-  día"). El color no es el único portador de la información.
-- Jerarquía real por página: `h1` en portada (titular del cartel), artículo y
-  vacío; el rail va en `h3` bajo su `h2`. El `nav` del masthead se anuncia
-  "Principal"/"Main", no con el nombre del primer enlace.
-- Enlaces del nav con área táctil ≥44px (padding compensado con margen
-  negativo). `touch-action: manipulation` y tap-highlight amarillo en
-  interactivos.
-- Hover de navegación siempre en amarillo marcador: el rosa queda reservado a
-  procedencia y el teal al halo de foco. Ningún color de hover decora.
-- `color-scheme: light`, `theme-color` papel, TZ fija `Europe/Madrid` en toda
-  fecha impresa (la hora no depende del runner de CI).
+- Contrastes medidos sobre `--paper`: tinta 17.35:1, tinta suave 8.05:1, rojo
+  6.97:1; blanco sobre rojo 7.16:1; tinta suave sobre `--paper-deep` 7.44:1.
+- Foco: contorno rojo de 3px con offset de 2px, visible sobre papel (6.97:1) y
+  sobre el bloque de código (offset 3px, con papel de por medio).
+- Los sellos dicen la palabra ("Última hora", "Importante", "Del día"); el
+  color no es el único portador.
+- Todo `pre` lleva `tabindex="0"` y `role="region"` con `aria-label` en el
+  idioma de la página (plugin rehype): el scroll horizontal se recorre con
+  teclado.
+- Skip link; `nav` anunciado "Principal"/"Main"; `aria-current="page"`.
+  Jerarquía real: `h1` la cabeza de portada (o el vacío, o el artículo), `h2`
+  las secciones (`.wirehead`), `h3` el índice y las fechas de archivo.
+- Áreas táctiles ≥44px vía `padding-block` en enlaces; donde el enlace es flex
+  item el padding estira la fila y se acepta; en nav, colofón y 404 se compensa
+  con margen negativo. Excepción conocida: los `h3` del carril a ≥64rem quedan
+  en ≈40.7px — contexto de puntero fino, AA cumplido.
+- `:visited` baja a tinta suave en el índice y en el archivo (el lector diario
+  distingue lo leído); la cabeza de portada nunca: siempre imprime a tinta
+  plena.
+- `color-scheme: light`, `theme-color` `#FCFCFA`, tap-highlight rojo al 16%,
+  `touch-action: manipulation`. TZ fija `Europe/Madrid` en toda fecha y hora
+  impresa: lo impreso no depende del runner de CI.
+- `hreflang` alternos con `x-default`; el conmutador de idioma declara `lang`.
+  `overflow-wrap` en titulares, entradillas y prosa: las URLs y tokens de
+  máquina no revientan el móvil.
 
 ## Verificado en render
 
-Dos columnas a partir de `64rem`, sticky del cartel, marginalia a `72rem`,
-reflow móvil a 390px (sin overflow horizontal), 404, botón de copiar y feeds RSS
-comprobados en navegador el 2026-08-04 (desktop 1470px y viewport 390px).
+Build de producción con 42 páginas ok; contrato de dirección con seed
+`012bfcd3` presente en `dist/es/index.html`; detector CLI con 0 hallazgos;
+`scrollWidth` 390 = viewport en móvil real (portada y artículo, sin overflow
+horizontal). Capturas desktop 1470px y móvil 390px del 2026-08-06.

@@ -1,28 +1,24 @@
-@import '@fontsource/permanent-marker/latin-400.css';
-@import '@fontsource-variable/figtree/wght.css';
+@import '@fontsource-variable/libre-franklin/wght.css';
+@import '@fontsource-variable/literata/opsz.css';
+@import '@fontsource-variable/literata/opsz-italic.css';
 @import '@fontsource-variable/jetbrains-mono/wght.css';
 
 :root {
-  /* Paleta del zine. El papel es el suelo, la tinta es el texto, y los tres
-     subrayadores son señales: amarillo marca lo vivo, rosa marca la procedencia,
-     teal marca lo verificable. Ninguno decora. */
-  --paper: #fff8ec;
-  --paper-deep: #f5ecd8;
-  --ink: #111111;
-  --ink-soft: #4a4438;
-  /* El amarillo del sello va sobre tinta y ahí rinde de sobra. Sobre el papel
-     crema se queda en 1.32:1, así que el trazo del subrayador usa uno más
-     saturado: si no, la señal principal del mundo no se ve. */
-  --hl-yellow: #ffe34d;
-  --hl-yellow-mark: #ffd814;
-  --hl-pink: #ff6bae;
-  --hl-teal: #00c7b7;
+  /* Paleta de agencia de cable: papel de servicio casi blanco, tinta de
+     teletipo y un solo acento, el rojo de prioridad. El rojo señala urgencia y
+     estado activo; nunca decora. Contrastes medidos sobre --paper:
+     tinta 17.3:1, tinta suave 8.05:1, rojo 6.97:1, blanco sobre rojo 7.16:1. */
+  --paper: #fcfcfa;
+  --paper-deep: #f4f3ee;
+  --ink: #15181b;
+  --ink-soft: #4a4f55;
+  --wire-red: #b3001b;
+  --rule: rgba(21, 24, 27, 0.18);
 
-  --marker: 'Permanent Marker', cursive;
-  --sans: 'Figtree Variable', system-ui, sans-serif;
+  --display: 'Libre Franklin Variable', system-ui, sans-serif;
+  --serif: 'Literata Variable', georgia, serif;
   --mono: 'JetBrains Mono Variable', ui-monospace, monospace;
 
-  /* Ritmo único. Encima de un titular siempre cabe más aire que debajo. */
   --s1: 0.5rem;
   --s2: 0.875rem;
   --s3: 1.5rem;
@@ -30,12 +26,7 @@
   --s5: 4rem;
   --s6: 6.5rem;
 
-  --measure: 68ch;
-  --edge: 2.5px;
-
-  /* El trazo del subrayador amarillo, compartido para poder redibujarlo en
-     otros componentes sin duplicar el SVG. */
-  --stroke-yellow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='24' viewBox='0 0 200 24' preserveAspectRatio='none'%3E%3Cpath d='M2 16.5c26-2.4 52-3.6 79-3.1 30 .6 61 2 117 .5v7.3c-52 1.7-84 .3-116-.4-28-.6-54 .6-80 2.6z' fill='%23FFD814'/%3E%3C/svg%3E");
+  --measure: 66ch;
 }
 
 *,
@@ -46,35 +37,36 @@
 
 html {
   -webkit-text-size-adjust: 100%;
-  /* Sitio de un solo esquema: papel claro. Declararlo arregla scrollbars y
-     controles nativos en sistemas con modo oscuro. */
+  /* Un solo esquema: papel claro. Declararlo arregla scrollbars y controles
+     nativos en sistemas con modo oscuro. */
   color-scheme: light;
 }
 
 body {
   margin: 0;
-  /* Las reglas SVG van a sangre bajo el notch; el texto, no. */
   padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
   background-color: var(--paper);
-  /* Fibra de papel. Trazos cortos e irregulares en tres direcciones, no una
-     trama de puntos: la pulpa del papel barato tiene hebra, no retícula. */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cg stroke='%23111' stroke-linecap='round' fill='none' stroke-width='.9'%3E%3Cpath d='M14 22h7M58 13l5 2M112 28l5-3M151 18h6M39 52l4 3M92 47h7M133 61l5-1M23 80l6 2M73 90h6M124 84l5 3M163 97h5M11 117l5-2M56 126h7M103 112l4 3M147 132l6-2M32 150h6M80 160l5-2M129 154l5 2M168 168h5' opacity='.032'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: 180px 180px;
   color: var(--ink);
-  font-family: var(--sans);
+  /* El cuerpo del sitio es lectura larga: serif de pantalla. Las piezas de
+     interfaz (nav, sellos, titulares) declaran la sans de cabecera. */
+  font-family: var(--serif);
   font-size: 1.0625rem;
-  line-height: 1.65;
+  line-height: 1.7;
 }
 
 h1,
 h2,
-h3 {
-  font-family: var(--marker);
-  font-weight: 400;
-  line-height: 1.05;
-  letter-spacing: -0.01em;
+h3,
+h4 {
+  font-family: var(--display);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
   margin: 0;
-  /* El rotulador real ya trae carácter; forzar más tracking lo emborrona. */
+  text-wrap: balance;
+  /* Los titulares los escribe una máquina: un token sin espacios no puede
+     reventar el ancho en móvil. */
+  overflow-wrap: break-word;
 }
 
 a {
@@ -84,11 +76,9 @@ a {
 a,
 button {
   touch-action: manipulation;
-  -webkit-tap-highlight-color: rgba(255, 216, 20, 0.28);
+  -webkit-tap-highlight-color: rgba(179, 0, 27, 0.16);
 }
 
-/* Los headings de los artículos llevan id; sin este margen, el anchor queda
-   pegado al borde superior al saltar. */
 :is(h1, h2, h3, h4)[id] {
   scroll-margin-top: var(--s4);
 }
@@ -96,44 +86,77 @@ button {
 img,
 svg {
   max-width: 100%;
+  height: auto;
 }
 
-/* El anillo de foco va en tinta: el teal sobre papel se queda en 1.94:1 y no
-   llega al mínimo de 3:1 para un indicador no textual. El teal se conserva como
-   halo exterior, que ahí sí ayuda a localizarlo. */
+::selection {
+  background: var(--wire-red);
+  color: #fff;
+}
+
+/* Foco en el acento del cable: visible sobre papel (6.97:1) y sobre el bloque
+   de código (borde de papel de por medio). */
 :focus-visible {
-  outline: 3px solid var(--ink);
-  outline-offset: 3px;
-  box-shadow: 0 0 0 6px var(--hl-teal);
+  outline: 3px solid var(--wire-red);
+  outline-offset: 2px;
 }
 
-/* El subrayador. Un trazo de rotulador que se sale por los extremos y tiene el
-   borde superior desigual, como el fluorescente pasado a mano sobre la
-   fotocopia: nunca cubre, siempre deja leer. */
-.hl {
-  background-image: var(--stroke-yellow);
-  background-repeat: no-repeat;
-  background-size: 100% 0.62em;
-  background-position: 0 88%;
-  padding: 0 0.16em;
+/* Etiqueta de prioridad del despacho: la escalera del teletipo. La palabra
+   lleva el significado; el color solo lo refuerza. */
+.tag {
+  display: inline-block;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 0.72rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.34em 0.6em 0.3em;
+  white-space: nowrap;
 }
 
-/* Variantes por color. El rosa marca procedencia y el teal lo verificable. */
-.hl-pink {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='24' viewBox='0 0 200 24' preserveAspectRatio='none'%3E%3Cpath d='M1 15.8c28-2.8 55-3.3 84-2.7 32 .7 63 1.9 114 .6v7.6c-48 1.9-83 .5-114-.2-29-.7-56 .4-84 2.4z' fill='%23FF6BAE'/%3E%3C/svg%3E");
+.tag-solid {
+  background: var(--wire-red);
+  color: #fff;
 }
 
-.hl-teal {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='24' viewBox='0 0 200 24' preserveAspectRatio='none'%3E%3Cpath d='M3 16.2c25-2.1 51-3.4 78-2.9 31 .5 62 1.8 116 .4v7.4c-50 1.8-85 .4-116-.3-27-.5-53 .7-78 2.5z' fill='%2300C7B7'/%3E%3C/svg%3E");
+.tag-outline {
+  color: var(--wire-red);
+  box-shadow: inset 0 0 0 1.5px var(--wire-red);
 }
 
-/* Marco dibujado a mano. El trazo cambia de grosor, las esquinas se pasan de
-   largo y ningún lado es recto: es la diferencia entre papel pegado con cinta y
-   un div con border-radius. */
-.drawn {
-  border: 0;
-  border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23111' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9.5 14.5C34 11.2 63 10.4 97 12.1c8.2.4 12.6 1.2 13.8 3.4 2.1 3.9 2.4 34 1.6 62.7-.5 17.4-1.2 25.6-3.1 27.2-2.4 2-33 3.1-63 2.6-27-.4-40.8-1.3-42.4-3.3-1.8-2.2-2.3-31-1.8-59.4.4-21.4 1.1-29.1 2.9-30.4z' stroke-width='2.6'/%3E%3Cpath d='M13.2 9.8c22-1.9 46-2.4 71-1.6' stroke-width='1.5' opacity='.55'/%3E%3Cpath d='M114.6 44c.7 19 .6 39-.4 55' stroke-width='1.5' opacity='.5'/%3E%3C/g%3E%3C/svg%3E")
-    22 / 20px / 0 round;
+.tag-plain {
+  color: var(--ink-soft);
+  box-shadow: inset 0 0 0 1px var(--rule);
+}
+
+/* Línea de servicio: fecha, hora y recuento en voz de rutado del cable. */
+.service {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* Cabecera de sección del cable: rótulo compacto y regla hasta el margen. */
+.wirehead {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.wirehead::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid var(--rule);
 }
 
 .wrap {

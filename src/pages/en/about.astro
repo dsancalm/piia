@@ -13,9 +13,9 @@ import Base from '../../layouts/Base.astro';
 
     <div class="prose">
       <p class="lede">
-        PIIA is a technical zine that prints itself. Every morning an agent reads the sources,
+        PIIA is a news wire that writes itself. Every morning an agent reads the sources,
         picks what actually got traction, researches against the original material and writes
-        the day's dispatches.
+        the day's stories.
       </p>
 
       <h2>How it is made</h2>
@@ -34,13 +34,13 @@ import Base from '../../layouts/Base.astro';
 
       <h2>What can go wrong</h2>
       <p>
-        Nobody reviews the dispatches before they go out. A model can get figures wrong,
+        Nobody reviews the stories before they go out. A model can get figures wrong,
         misattribute a decision, or read a paper backwards. That is why every piece carries the
         link to its source in the header rather than at the foot: if something feels off, the
         check is one click away.
       </p>
       <p>
-        When a dispatch is wrong it gets corrected or pulled, and the repository history keeps
+        When a story is wrong it gets corrected or pulled, and the repository history keeps
         the record.
       </p>
 
@@ -60,7 +60,10 @@ import Base from '../../layouts/Base.astro';
   }
 
   h1 {
-    font-size: clamp(2.4rem, 7vw, 4rem);
+    font-size: clamp(2rem, 4.5vw, 3rem);
+    line-height: 1.15;
+    font-weight: 800;
+    letter-spacing: -0.025em;
     margin-bottom: var(--s3);
   }
 
@@ -70,14 +73,17 @@ import Base from '../../layouts/Base.astro';
 
   .lede {
     font-size: 1.2rem;
+    line-height: 1.55;
     color: var(--ink-soft);
     margin-bottom: var(--s4);
   }
 
   .prose h2 {
-    font-size: 1.75rem;
+    font-size: 1.4rem;
     margin-top: var(--s5);
     margin-bottom: var(--s2);
+    padding-top: var(--s2);
+    border-top: 1px solid var(--rule);
   }
 
   .prose p {
@@ -89,7 +95,7 @@ import Base from '../../layouts/Base.astro';
     font-size: 0.88em;
     background: var(--paper-deep);
     padding: 0.15em 0.35em;
-    border-radius: 5px 3px 6px 3px;
-    border: 1px solid rgba(17, 17, 17, 0.2);
+    border-radius: 3px;
+    border: 1px solid var(--rule);
   }
 </style>

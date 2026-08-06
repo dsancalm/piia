@@ -4,7 +4,8 @@ import Masthead from '../components/Masthead.astro';
 import Colophon from '../components/Colophon.astro';
 // Vite resuelve la misma URL con hash que usa el CSS de @fontsource, así el
 // preload y la hoja de estilos apuntan al mismo archivo.
-import markerWoff2 from '@fontsource/permanent-marker/files/permanent-marker-latin-400-normal.woff2?url';
+import franklinWoff2 from '@fontsource-variable/libre-franklin/files/libre-franklin-latin-wght-normal.woff2?url';
+import literataWoff2 from '@fontsource-variable/literata/files/literata-latin-opsz-normal.woff2?url';
 
 interface Props {
   title: string;
@@ -43,26 +44,30 @@ const t = {
       title="PIIA"
       href={`${base}/${lang}/rss.xml`}
     />
-    <meta name="theme-color" content="#FFF8EC" />
+    <meta name="theme-color" content="#FCFCFA" />
     <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
-    <link rel="preload" href={markerWoff2} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={franklinWoff2} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={literataWoff2} as="font" type="font/woff2" crossorigin />
     <meta name="generator" content={Astro.generator} />
   </head>
   <body>
     <!--
-      THESIS: Un fanzine técnico fotocopiado que explica, no un feed que acumula.
-      Rechaza la retícula de tarjetas oscuras con etiqueta monoespaciada que envía
-      cualquier blog de IA.
-      OWN-WORLD: Papel crema #FFF8EC con grano de pulpa, tinta negra de rotulador,
-      y tres subrayadores planos (amarillo #FFE34D vivo, rosa #FF6BAE procedencia,
-      teal #00C7B7 verificable). Marcos de trazo irregular dibujado, nunca cajas CSS.
-      STORY: El lector ve qué ha cambiado hoy en IA, entiende por qué le afecta, y
-      llega a la fuente original en un clic sabiendo que lo redactó una máquina.
-      FIRST VIEWPORT: Cabecera rotulada a mano con la fecha del número; debajo, el
-      despacho de portada a tamaño de cartel con su subrayado; a su lado, la pila
-      del resto del día en trazo más fino.
-      FORM: Zine técnico dibujado a mano; retador de catálogo elegido por el usuario
-      sobre el asignado (era el 5 de mi lista); seed fa142f91.
+      THESIS: El servicio de cable de una agencia automática: despachos con
+      prioridad, hora y procedencia en jerarquía de sala de redacción. Rechaza
+      la retícula de tarjetas oscuras con neón de los blogs de IA y el papel
+      craft con letra dibujada del zine anterior.
+      OWN-WORLD: Papel de servicio #FCFCFA, tinta #15181B, un solo acento: rojo
+      de prioridad #B3001B. Libre Franklin para titulares y rótulos en caja
+      alta, Literata para lectura larga, JetBrains Mono solo para hora, dato y
+      código. Escalera de prioridad como etiquetas (roja maciza / contorno rojo
+      / neutra), reglas tipográficas dobles, línea de servicio en cada página.
+      STORY: El lector ve qué ha cambiado hoy en IA, entiende por qué le
+      afecta, y llega a la fuente original en un clic sabiendo que lo redactó
+      una máquina.
+      FIRST VIEWPORT: Masthead compacto con regla doble; línea de servicio con
+      fecha y recuento; despacho de cabeza a un ancho dominante con su
+      etiqueta, hora y fuente; a su derecha, la pila del día como índice.
+      FORM: Teletipo de agencia; candidato 4 de mi lista ordenada; seed 012bfcd3.
       FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
     -->
     <a class="skip" href="#main">{t.skip}</a>
