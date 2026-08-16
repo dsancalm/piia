@@ -39,7 +39,7 @@ jobs:
         id: generate
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          OPENROUTER_MODEL: deepseek/deepseek-v4-flash-0731
+          OPENROUTER_MODEL: google/gemma-4-26b-a4b-it:free
           # La entrada del disparo manual llega por variable de entorno y no
           # interpolada en el comando, para que no pueda inyectar shell.
           MAX_DISPATCHES: ${{ inputs.max || '5' }}

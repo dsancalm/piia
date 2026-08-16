@@ -66,7 +66,7 @@ parte del posicionamiento, no una nota legal al pie.
   el cupo.
 - **Fuentes v1:** solo RSS/Atom. Reddit queda para una segunda fase y requiere
   OAuth. Twitter/X descartado en v1 por coste de API.
-- **Modelo de redacción:** `deepseek/deepseek-v4-flash-0731` vía OpenRouter.
+- **Modelo de redacción:** `google/gemma-4-26b-a4b-it:free` vía OpenRouter.
   Fijado por decisión del usuario.
 - **Contenido técnico:** los artículos incluyen bloques de código y comandos de
   terminal. Deben poder copiarse y ejecutarse sin alteración; ningún paso de
