@@ -168,6 +168,17 @@ export function assertCodeIntact(text, blocks) {
 const EMOJI =
   /[\u{1F300}-\u{1FAFF}\u{1F000}-\u{1F0FF}\u{2600}-\u{27BF}\u{FE0F}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}]/gu;
 
+// El título del artículo se guarda en el frontmatter y la plantilla ya lo pinta,
+// así que si el cuerpo trae el suyo el lector lo ve dos veces. Un "Título:" o un
+// encabezado de nivel 1 al principio solo puede ser eso: el prompt pide empezar
+// por el primer párrafo y no permite pasar de nivel 2.
+const LEADING_TITLE = /^\s*(?:#\s+.*|(?:#{1,6}\s*)?\**(?:T[íi]tulo|Title|Headline)\**\s*:.*)(?:\n+|$)/i;
+
+/** Quita el título que el modelo repite al empezar el cuerpo. */
+export function stripLeadingTitle(text) {
+  return text.replace(LEADING_TITLE, '').trimStart();
+}
+
 /** Últimos tics que se cuelan aunque el prompt los prohíba. Solo toca prosa. */
 export function scrubProse(text) {
   return text

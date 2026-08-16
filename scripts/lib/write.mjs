@@ -1,6 +1,6 @@
 import { complete, completeJson, MODEL } from './openrouter.mjs';
 import { fetchSource } from './source.mjs';
-import { humanizerRules, stripCode, restoreCode, assertCodeIntact, scrubProse } from './humanize.mjs';
+import { humanizerRules, stripCode, restoreCode, assertCodeIntact, scrubProse, stripLeadingTitle } from './humanize.mjs';
 
 const VOICE = {
   es: 'Escribes en español de España, en segunda persona cuando hablas al lector.',
@@ -195,7 +195,7 @@ ${rules}`,
 
   assertCodeIntact(polished, blocks);
 
-  return restoreCode(scrubProse(polished), blocks);
+  return restoreCode(stripLeadingTitle(scrubProse(polished)), blocks);
 }
 
 /**
