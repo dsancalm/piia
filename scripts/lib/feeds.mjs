@@ -19,6 +19,12 @@ export const FEEDS = [
   // se comen la lista entera y la selección no llega a ver nada más.
   { name: 'arXiv cs.CL', url: 'https://rss.arxiv.org/rss/cs.CL', weight: 0.9, cap: 8 },
   { name: 'arXiv cs.AI', url: 'https://rss.arxiv.org/rss/cs.AI', weight: 0.9, cap: 8 },
+  // El .rss es la única vía pública que queda: el .json responde 403 y old.reddit
+  // ya solo sirve la interfaz nueva, que sin JavaScript no trae ni un post.
+  // `t=week` en vez de `t=day` porque el subreddit es pequeño: el top del día deja
+  // una sola entrada dentro de la ventana de 36 horas, y el de la semana deja tres.
+  // Sigue ordenado por votos, que es la única señal de tendencia que da el feed.
+  { name: 'Reddit r/AIDeveloperNews', url: 'https://www.reddit.com/r/AIDeveloperNews/top.rss?t=week', weight: 1.15, cap: 12, reddit: true },
 ];
 
 const parser = new XMLParser({
@@ -61,14 +67,40 @@ function linkOf(entry) {
   return alternate?.['@_href'] ?? text(entry.id) ?? '';
 }
 
+/** Reddit enlaza al hilo, no al artículo. Cuando el post apunta fuera, ese enlace
+ *  es el que vale: trae el contenido que hace falta para investigar, y permite
+ *  ver que la noticia ya salió por otra fuente. Los self-post se quedan con el
+ *  hilo, que es donde está lo que cuentan. */
+function outboundLink(html) {
+  for (const [, url] of html.replace(/&amp;/g, '&').matchAll(/href="(https?:\/\/[^"]+)"/g)) {
+    try {
+      if (!/(^|\.)(reddit\.com|redd\.it)$/.test(new URL(url).hostname)) return url;
+    } catch {
+      // Un href que no se puede interpretar como URL no sirve.
+    }
+  }
+  return null;
+}
+
 /** Lee un canal y devuelve sus entradas normalizadas. Nunca lanza: una fuente
  *  caída no puede impedir que salga el número del día. */
 export async function readFeed(feed) {
   try {
-    const response = await fetch(feed.url, {
-      headers: { 'User-Agent': 'PIIA/1.0 (+https://github.com/dsancalm/piia)' },
-      signal: AbortSignal.timeout(30_000),
-    });
+    // Reddit limita por IP y responde 429 con facilidad desde un runner, que sale
+    // por un rango compartido. Sin reintento la fuente aporta cero la mitad de los
+    // días. Se reintenta dos veces, a los 20 y a los 45 segundos.
+    let response;
+    for (const wait of [0, 20_000, 45_000]) {
+      if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
+
+      response = await fetch(feed.url, {
+        headers: { 'User-Agent': 'PIIA/1.0 (+https://github.com/dsancalm/piia)' },
+        signal: AbortSignal.timeout(30_000),
+      });
+
+      if (response.status !== 429) break;
+      console.warn(`  ${feed.name}: HTTP 429, se reintenta`);
+    }
 
     if (!response.ok) {
       console.warn(`  ${feed.name}: HTTP ${response.status}`);
@@ -91,7 +123,7 @@ export async function readFeed(feed) {
 
         return {
           title: stripTags(text(entry.title)),
-          url: linkOf(entry).trim(),
+          url: (feed.reddit && outboundLink(text(entry.content))) || linkOf(entry).trim(),
           excerpt: body.slice(0, 1200),
           publishedAt: published ? new Date(published) : new Date(),
           sourceName: feed.name,
@@ -111,12 +143,18 @@ export async function collect({ hours = 36 } = {}) {
   const results = await Promise.all(FEEDS.map(readFeed));
   const cutoff = Date.now() - hours * 3600 * 1000;
 
-  const perSource = results.map((items, i) =>
-    items
-      .filter((item) => item.publishedAt.getTime() > cutoff)
-      .sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime())
-      .slice(0, FEEDS[i].cap ?? 10),
-  );
+  const perSource = results.map((items, i) => {
+    const recent = items.filter((item) => item.publishedAt.getTime() > cutoff);
+
+    // Un feed `top` llega ordenado por votos. Reordenarlo por fecha antes de
+    // aplicar la cuota deja lo más nuevo en vez de lo más votado, que es justo la
+    // señal por la que se lee.
+    if (!FEEDS[i].reddit) {
+      recent.sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
+    }
+
+    return recent.slice(0, FEEDS[i].cap ?? 10);
+  });
 
   return perSource.flat().sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
 }

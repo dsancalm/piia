@@ -51,7 +51,9 @@ async function main() {
   console.log(`  ${fresh.length} entradas recientes`);
 
   const seen = await loadSeen();
-  const candidates = fresh.filter((item) => !seen.has(fingerprint(item.url))).slice(0, 60);
+  // Las cuotas por fuente suman 66. Con el corte en 60 se perdían entradas por
+  // fecha, sin mirar la calidad, justo lo contrario de para qué está la cuota.
+  const candidates = fresh.filter((item) => !seen.has(fingerprint(item.url))).slice(0, 70);
   console.log(`  ${candidates.length} sin publicar todavía`);
 
   if (candidates.length === 0) {
