@@ -36,7 +36,7 @@ Para generar despachos en local hace falta un `.env` con:
 
 ```
 OPENROUTER_API_KEY=sk-or-...
-OPENROUTER_MODEL=google/gemma-4-31b-it:free
+OPENROUTER_MODEL=google/gemma-4-26b-a4b-it:free
 ```
 
 ```bash

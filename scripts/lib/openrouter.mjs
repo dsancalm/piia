@@ -1,6 +1,6 @@
 const ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
 
-export const MODEL = process.env.OPENROUTER_MODEL ?? 'google/gemma-4-31b-it:free';
+export const MODEL = process.env.OPENROUTER_MODEL ?? 'google/gemma-4-26b-a4b-it:free';
 
 /**
  * Una llamada al modelo. Reintenta ante fallos transitorios porque esto corre
