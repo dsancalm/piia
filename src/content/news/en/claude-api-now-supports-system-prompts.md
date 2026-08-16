@@ -10,8 +10,6 @@ priority: flash
 tags: [anthropic, api, software]
 generatedBy: google/gemma-4-26b-a4b-it:free
 ---
-Title: Claude introduces system prompts in its API
-
 Anthropic added support for system prompts to the Claude API. This update lets you define the behavior, persona, and context of the model through a dedicated parameter that stays separate from user messages. Previously, developers had to instruct the model within the standard conversation flow. This often caused instruction drift or led the model to ignore constraints as the chat history grew.
 
 This change provides a structured way to manage model constraints. Isolating the system instructions reduces the chance that the model confuses developer instructions with user input. This separation is necessary when building applications that require strict adherence to specific formats, personas, or safety guardrails. It makes the behavior of the model more predictable during long conversations.
@@ -26,3 +24,4 @@ What is not known:
 The specific content of the internal system prompts used by Anthropic is not public. The impact of this functionality on the model's performance benchmarks remains unverified.
 
 Source: https://news.ycombinator.com/item?id=38533611
+

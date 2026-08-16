@@ -10,8 +10,6 @@ priority: flash
 tags: [minimax-h3, apple-silicon, inference, metal]
 generatedBy: deepseek/deepseek-v4-flash-0731
 ---
-# H3-metal: MiniMax-H3 nativo para Apple Silicon
-
 h3-metal es una implementación nativa de inferencia de MiniMax-H3 para Apple Silicon. Se construye como una secuencia de rebanadas verticales de trabajo: primero metadatos deterministas del host y del modelo, luego paridad de bloques Metal portátil, codificación de prompts, prompt-to-video/audio, y condicionamiento de primer y último fotograma.
 
 El proyecto compila como un único binario que comprueba el diseño del modelo sin mapear todos los pesos:
@@ -39,3 +37,4 @@ Los números en M5 Max: el denoise de cuatro pases tarda unos 3.5 segundos frent
 ## Limitaciones
 
 La fuente no especifica el tamaño exacto del modelo MiniMax-H3 en parámetros, ni el consumo de memoria total en diferentes configuraciones. No hay datos de rendimiento en otros chips Apple Silicon distintos de M3 Max y M5 Max, ni se menciona el tiempo de carga inicial del modelo. Tampoco se indica la licencia del proyecto.
+
