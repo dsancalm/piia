@@ -39,7 +39,9 @@ jobs:
         id: generate
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          OPENROUTER_MODEL: google/gemma-4-26b-a4b-it:free
+          # Se prueban en orden y gana el primero que responde. Tres proveedores
+          # distintos: los `:free` se saturan y el 429 alcanza a todo un proveedor.
+          OPENROUTER_MODELS: nvidia/nemotron-3-ultra-550b-a55b:free,dots-studio/dots-3-note-preview:free,poolside/laguna-s-2.1:free
           # La entrada del disparo manual llega por variable de entorno y no
           # interpolada en el comando, para que no pueda inyectar shell.
           MAX_DISPATCHES: ${{ inputs.max || '5' }}

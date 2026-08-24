@@ -11,7 +11,7 @@
 import { writeFile, mkdir } from 'node:fs/promises';
 import { collect } from './lib/feeds.mjs';
 import { loadSeen, saveSeen, fingerprint, toStory } from './lib/store.mjs';
-import { select, research, draft, headline, MODEL } from './lib/write.mjs';
+import { select, research, draft, headline, MODEL, MODELS } from './lib/write.mjs';
 
 const args = process.argv.slice(2);
 const dry = args.includes('--dry');
@@ -44,7 +44,7 @@ function toMarkdown({ meta, body, lang, story, item }) {
 }
 
 async function main() {
-  console.log(`PIIA · tirada del ${new Date().toISOString().slice(0, 10)} · modelo ${MODEL}`);
+  console.log(`PIIA · tirada del ${new Date().toISOString().slice(0, 10)} · modelos ${MODELS.join(' → ')}`);
 
   console.log('\nLeyendo fuentes...');
   const fresh = await collect({ hours: 36 });

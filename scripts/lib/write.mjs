@@ -1,10 +1,13 @@
-import { complete, completeJson, MODEL } from './openrouter.mjs';
+import { complete, completeJson, MODEL, MODELS } from './openrouter.mjs';
 import { fetchSource } from './source.mjs';
 import { humanizerRules, stripCode, restoreCode, assertCodeIntact, scrubProse, stripLeadingTitle } from './humanize.mjs';
 
+// El resto de las instrucciones va en español para los dos idiomas. Sin decir el
+// idioma de salida de forma expresa, un modelo arrastra el del prompt y devuelve
+// la pieza inglesa en español.
 const VOICE = {
-  es: 'Escribes en español de España, en segunda persona cuando hablas al lector.',
-  en: 'You write in English, addressing the reader as "you".',
+  es: 'Escribes en español de España, en segunda persona cuando hablas al lector. Devuelves todo el texto en español, aunque el material de partida esté en inglés.',
+  en: 'You write in English, addressing the reader as "you". Your entire output must be in English, even though the rest of these instructions is written in Spanish.',
 };
 
 /**
@@ -180,6 +183,7 @@ ${rules}`;
     system: `Eres un editor. Reescribes el texto para quitarle los tics de la
 escritura automática, conservando todos los hechos, el orden de las ideas y el
 formato Markdown.
+${VOICE[lang]}
 
 Los marcadores con la forma __PIIA_CODE_0__ son bloques de código. Los dejas
 exactamente donde están, sin tocarlos, sin renumerarlos y sin añadir ni quitar
@@ -250,4 +254,4 @@ ${rules}`,
   };
 }
 
-export { MODEL };
+export { MODEL, MODELS };
