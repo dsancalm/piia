@@ -1,10 +1,10 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { getCollection, render, type CollectionEntry } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Stamp from './Stamp.astro';
 
 interface Props {
-  entry: any;
+  entry: CollectionEntry<'news'>;
 }
 
 const { entry } = Astro.props;

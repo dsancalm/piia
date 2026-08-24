@@ -108,62 +108,6 @@ export async function complete({
   throw new Error(`Ningún modelo respondió. Último fallo: ${lastError.message}`);
 }
 
-/**
- * Cierra un JSON que se quedó a medias porque la respuesta tocó el límite de
- * tokens. Descarta el último elemento incompleto y cierra lo que quedó abierto,
- * que es preferible a perder la tirada entera por un corchete.
- */
-function repairTruncatedJson(text) {
-  const stack = [];
-  let inString = false;
-  let escaped = false;
-  let lastComplete = -1;
-
-  for (let i = 0; i < text.length; i += 1) {
-    const char = text[i];
-
-    if (escaped) {
-      escaped = false;
-      continue;
-    }
-    if (char === '\\' && inString) {
-      escaped = true;
-      continue;
-    }
-    if (char === '"') {
-      inString = !inString;
-      continue;
-    }
-    if (inString) continue;
-
-    if (char === '{' || char === '[') {
-      stack.push(char === '{' ? '}' : ']');
-    } else if (char === '}' || char === ']') {
-      stack.pop();
-      // Un elemento de array acaba de cerrarse por completo.
-      if (stack.length === 2) lastComplete = i;
-    }
-  }
-
-  if (stack.length === 0) return text;
-
-  const cut = lastComplete > 0 ? text.slice(0, lastComplete + 1) : text.replace(/,[^,]*$/, '');
-  const open = [];
-  let str = false;
-  let esc = false;
-  for (let i = 0; i < cut.length; i += 1) {
-    const c = cut[i];
-    if (esc) { esc = false; continue; }
-    if (c === '\\' && str) { esc = true; continue; }
-    if (c === '"') { str = !str; continue; }
-    if (str) continue;
-    if (c === '{' || c === '[') open.push(c === '{' ? '}' : ']');
-    else if (c === '}' || c === ']') open.pop();
-  }
-
-  return cut + open.reverse().join('');
-}
-
 /** Igual que `complete`, pero exige JSON válido de vuelta. */
 export async function completeJson(options) {
   const raw = await complete({ ...options, json: true });
@@ -176,9 +120,6 @@ export async function completeJson(options) {
 
   const braced = raw.match(/\{[\s\S]*\}/);
   if (braced) candidates.push(braced[0]);
-
-  const opening = raw.indexOf('{');
-  if (opening >= 0) candidates.push(repairTruncatedJson(raw.slice(opening)));
 
   for (const candidate of candidates) {
     try {

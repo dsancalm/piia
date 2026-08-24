@@ -26,7 +26,8 @@ import Base from '../../layouts/Base.astro';
         never pads to fill the quota when the material is not there.
       </p>
       <p>
-        The writing is done by <code>google/gemma-4-26b-a4b-it:free</code> through OpenRouter.
+        The writing is done by a model through OpenRouter. Several are tried in order and the
+        first one that answers writes the piece, so every story prints the one that wrote it.
         The text then goes through a pass that strips the tics of automated writing, and code
         blocks are pulled out before that pass and put back untouched: what you copy from here
         is what the model wrote, with no style rewrites in between.

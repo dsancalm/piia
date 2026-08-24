@@ -19,6 +19,10 @@ const maxIndex = args.indexOf('--max');
 const MAX = maxIndex >= 0 ? Number(args[maxIndex + 1]) : 5;
 const MIN = 3;
 
+/** Las noticias viven fuera de src/: el generador no escribe dentro del árbol
+ *  de fuentes del sitio. El frontal las lee desde ahí con el glob loader. */
+const OUT = 'content';
+
 /** El escapado de YAML importa: un titular con dos puntos rompe el frontmatter
  *  y tumba la build entera. Se citan siempre y se escapan las comillas. */
 const yaml = (value) => `"${String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
@@ -108,8 +112,8 @@ async function main() {
           continue;
         }
 
-        await mkdir(`src/content/news/${lang}`, { recursive: true });
-        await writeFile(`src/content/news/${lang}/${story}.md`, markdown, 'utf8');
+        await mkdir(`${OUT}/${lang}`, { recursive: true });
+        await writeFile(`${OUT}/${lang}/${story}.md`, markdown, 'utf8');
       }
 
       seen.add(fingerprint(item.url));

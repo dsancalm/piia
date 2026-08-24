@@ -1,20 +1,11 @@
 ---
+import type { CollectionEntry } from 'astro:content';
 import Stamp from './Stamp.astro';
 
 interface Props {
-  entry: {
-    id: string;
-    data: {
-      title: string;
-      summary: string;
-      story: string;
-      publishedAt: Date;
-      sourceUrl: string;
-      sourceName: string;
-      priority: 'flash' | 'urgent' | 'routine';
-      tags: string[];
-    };
-  };
+  // El tipo sale del esquema de la colección. Escrito a mano, un campo nuevo
+  // en content.config.ts no llegaba hasta aquí.
+  entry: CollectionEntry<'news'>;
   lang: 'es' | 'en';
   /** El primero del día abre el servicio a tamaño de cabeza de portada. */
   lead?: boolean;

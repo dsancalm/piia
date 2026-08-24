@@ -19,7 +19,7 @@ cron (GitHub Actions, 06:30 UTC)
   ├─ 4. Investigación se descarga la fuente original y se extraen hechos y código
   ├─ 5. Redacción     español e inglés, con las reglas antislop en el prompt
   ├─ 6. Humanizado    el código se aparta y vuelve intacto
-  └─ 7. Commit        src/content/news/{es,en}/*.md, y el push despliega
+  └─ 7. Commit        content/{es,en}/*.md, y el push despliega
 ```
 
 El cupo diario es un techo, no una cuota: si nada supera el umbral, no se publica
@@ -36,12 +36,14 @@ Para generar despachos en local hace falta un `.env` con:
 
 ```
 OPENROUTER_API_KEY=sk-or-...
-OPENROUTER_MODEL=google/gemma-4-26b-a4b-it:free
+OPENROUTER_MODELS=modelo/uno:free,modelo/dos:free   # opcional, se prueban en orden
 ```
 
+El script no lee el `.env` por su cuenta. Se lo pasa Node:
+
 ```bash
-node scripts/publish.mjs --dry        # no escribe nada, solo enseña qué saldría
-node scripts/publish.mjs --max 3      # tirada real
+node --env-file=.env scripts/publish.mjs --dry     # no escribe nada, solo enseña qué saldría
+node --env-file=.env scripts/publish.mjs --max 3   # tirada real
 ```
 
 En GitHub hace falta el secret `OPENROUTER_API_KEY` y activar Pages con origen
@@ -90,7 +92,13 @@ scripts/
   lib/humanize.mjs   reglas antislop y blindaje del código
   lib/openrouter.mjs cliente del modelo
   lib/store.mjs      deduplicación
+  lib/html.mjs       texto y entidades de HTML
+content/{es,en}/     las noticias, en Markdown
 src/                 sitio Astro
 ```
+
+El generador escribe en `content/` y el sitio lo lee desde ahí. No comparten
+código: el contrato entre los dos es el frontmatter, y `src/content.config.ts`
+lo valida en cada build.
 
 `PRODUCT.md` recoge la verdad del producto y `DESIGN.md` el sistema visual.

@@ -1,11 +1,11 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
-// Un despacho por idioma. El agente escribe el mismo artículo en src/content/news/es
-// y src/content/news/en compartiendo el campo `slug`, que es lo que empareja ambas
+// Un despacho por idioma. El agente escribe el mismo artículo en content/es
+// y content/en compartiendo el campo `slug`, que es lo que empareja ambas
 // versiones para el conmutador de idioma.
 const news = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/news' }),
+  loader: glob({ pattern: '**/*.md', base: './content' }),
   schema: z.object({
     title: z.string(),
     // Entradilla del despacho. Es lo que se lee en portada, así que se limita para

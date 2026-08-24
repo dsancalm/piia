@@ -1,5 +1,7 @@
 import { XMLParser } from 'fast-xml-parser';
 
+import { stripTags } from './html.mjs';
+
 /**
  * Fuentes de la v1. Todas son RSS o Atom público: sin claves, sin OAuth, sin
  * límites de cuota que puedan tumbar la tirada diaria.
@@ -10,15 +12,15 @@ import { XMLParser } from 'fast-xml-parser';
 // Anthropic no expone RSS público: todas las rutas habituales dan 404. Si algún
 // día lo publica, entra aquí.
 export const FEEDS = [
-  { name: 'Hacker News (portada)', url: 'https://hnrss.org/frontpage?points=150', weight: 1.15, cap: 12 },
-  { name: 'Simon Willison', url: 'https://simonwillison.net/atom/everything/', weight: 1.2, cap: 8 },
-  { name: 'OpenAI', url: 'https://openai.com/news/rss.xml', weight: 1.3, cap: 6 },
-  { name: 'Google Research', url: 'https://research.google/blog/rss/', weight: 1.1, cap: 6 },
-  { name: 'Hugging Face', url: 'https://huggingface.co/blog/feed.xml', weight: 1.1, cap: 6 },
+  { name: 'Hacker News (portada)', url: 'https://hnrss.org/frontpage?points=150', cap: 12 },
+  { name: 'Simon Willison', url: 'https://simonwillison.net/atom/everything/', cap: 8 },
+  { name: 'OpenAI', url: 'https://openai.com/news/rss.xml', cap: 6 },
+  { name: 'Google Research', url: 'https://research.google/blog/rss/', cap: 6 },
+  { name: 'Hugging Face', url: 'https://huggingface.co/blog/feed.xml', cap: 6 },
   // Los repositorios de preprints publican cientos de entradas al día. Sin cuota
   // se comen la lista entera y la selección no llega a ver nada más.
-  { name: 'arXiv cs.CL', url: 'https://rss.arxiv.org/rss/cs.CL', weight: 0.9, cap: 8 },
-  { name: 'arXiv cs.AI', url: 'https://rss.arxiv.org/rss/cs.AI', weight: 0.9, cap: 8 },
+  { name: 'arXiv cs.CL', url: 'https://rss.arxiv.org/rss/cs.CL', cap: 8 },
+  { name: 'arXiv cs.AI', url: 'https://rss.arxiv.org/rss/cs.AI', cap: 8 },
 ];
 
 const parser = new XMLParser({
@@ -35,20 +37,6 @@ const text = (value) => {
   if (typeof value === 'object') return String(value['#text'] ?? '');
   return String(value);
 };
-
-const stripTags = (html) =>
-  html
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/\s+/g, ' ')
-    .trim();
 
 function linkOf(entry) {
   if (typeof entry.link === 'string') return entry.link;
@@ -105,7 +93,6 @@ export async function readFeed(feed) {
           excerpt: body.slice(0, 1200),
           publishedAt: published ? new Date(published) : new Date(),
           sourceName: feed.name,
-          weight: feed.weight,
         };
       })
       .filter((item) => item.title && item.url.startsWith('http'));

@@ -56,7 +56,7 @@ jobs:
           set -euo pipefail
           git config user.name  "piia-bot"
           git config user.email "piia-bot@users.noreply.github.com"
-          git add src/content/news data/seen.json
+          git add content data/seen.json
           if git diff --cached --quiet; then
             echo "Sin cambios: no se publica nada hoy."
             echo "published=false" >> "$GITHUB_OUTPUT"
@@ -64,7 +64,7 @@ jobs:
           fi
           # El mensaje no incluye titulares. Vienen de fuentes externas y no
           # tienen por qué acabar dentro de un comando de shell.
-          count=$(git diff --cached --name-only --diff-filter=A -- src/content/news | wc -l | tr -d ' ')
+          count=$(git diff --cached --name-only --diff-filter=A -- content | wc -l | tr -d ' ')
           git commit -m "Tirada del $(date -u +%Y-%m-%d): ${count} archivo(s)"
           git push
           echo "published=true" >> "$GITHUB_OUTPUT"

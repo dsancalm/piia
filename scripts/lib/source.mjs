@@ -6,31 +6,11 @@
  * primaria es la que trae los bloques de código, las cifras y los detalles.
  */
 
+import { stripTags } from './html.mjs';
+
 // Muchas páginas no usan <pre>: envuelven el comando en un <code> suelto o en un
 // <div class="highlight">. Se recogen los tres.
 const BLOCK = /<pre[\s\S]*?<\/pre>|<div[^>]+class="[^"]*highlight[^"]*"[\s\S]*?<\/div>|<code[^>]*>[\s\S]*?<\/code>/gi;
-
-const decode = (html) =>
-  html
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#0?39;/g, "'")
-    .replace(/&apos;/g, "'")
-    .replace(/&amp;/g, '&');
-
-const textOf = (html) =>
-  decode(
-    html
-      .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-      .replace(/<nav[\s\S]*?<\/nav>/gi, ' ')
-      .replace(/<footer[\s\S]*?<\/footer>/gi, ' ')
-      .replace(/<[^>]+>/g, ' '),
-  )
-    .replace(/\s+/g, ' ')
-    .trim();
 
 /**
  * Devuelve `{ text, code }` de la URL, o null si no se puede leer. Nunca lanza:
@@ -59,7 +39,7 @@ export async function fetchSource(url) {
     }
 
     const code = [...body.matchAll(BLOCK)]
-      .map((match) => textOf(match[0]))
+      .map((match) => stripTags(match[0]))
       .map((snippet) => snippet.trim())
       .filter((snippet) => snippet.length > 12 && snippet.length < 1200)
       .slice(0, 6);
@@ -70,7 +50,7 @@ export async function fetchSource(url) {
       body.match(/<main[\s\S]*?<\/main>/i)?.[0] ??
       body;
 
-    const text = textOf(main).slice(0, 12_000);
+    const text = stripTags(main).slice(0, 12_000);
 
     return text.length > 200 ? { text, code } : null;
   } catch {
